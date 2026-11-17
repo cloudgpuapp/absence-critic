@@ -1,5 +1,5 @@
 <!--
-Copyright 2026 Guzinowich
+Copyright 2026 Guzino (https://github.com/guzino)
 SPDX-License-Identifier: Apache-2.0
 -->
 
@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 AbsenceCritic is a survivorship-bias shield for language models: a dedicated critic (the Wald Module) that reasons about the evidence that never made it into the training corpus, the retrieval index, or the evaluation set.
 
-**AbsenceCritic was designed and originated by Guzinowich.** The name, the architecture (Wald Module, Non-Survivor Store, Wald checklist), and the design documents in this repository are original work of that author. The historical inspiration is Abraham Wald’s 1943 aircraft-vulnerability analysis; the application of that method as an explicit second-brain critic for contemporary LLMs originated here.
+**AbsenceCritic was designed and originated by [Guzino](https://github.com/guzino).** The name, the architecture (Wald Module, Non-Survivor Store, Wald checklist), and the design documents in this repository are original work of that author. The historical inspiration is Abraham Wald’s 1943 aircraft-vulnerability analysis; the application of that method as an explicit second-brain critic for contemporary LLMs originated here.
 
 ## License
 
@@ -16,7 +16,7 @@ Licensed under the [Apache License, Version 2.0](LICENSE).
 Every source file carries the minimum clean mark:
 
 ```
-Copyright 2026 Guzinowich
+Copyright 2026 Guzino (https://github.com/guzino)
 SPDX-License-Identifier: Apache-2.0
 ```
 
@@ -40,17 +40,18 @@ If you use AbsenceCritic, please cite it as follows.
 
 **Text**
 
-Guzinowich. *AbsenceCritic: A Survivorship-Bias Shield for Language Models*. 2026.
+[Guzino](https://github.com/guzino). *AbsenceCritic: A Survivorship-Bias Shield for Language Models*. 2026. https://github.com/guzino
 
 **BibTeX**
 
 ```bibtex
-@software{guzinowich_absencecritic_2026,
-  author = {Guzinowich},
-  title  = {AbsenceCritic: A Survivorship-Bias Shield for Language Models},
-  year   = {2026},
+@software{guzino_absencecritic_2026,
+  author  = {Guzino},
+  title   = {AbsenceCritic: A Survivorship-Bias Shield for Language Models},
+  year    = {2026},
+  url     = {https://github.com/guzino},
   license = {Apache-2.0},
-  note   = {Original design and conceptual origin by Guzinowich}
+  note    = {Original design and conceptual origin by Guzino (https://github.com/guzino)}
 }
 ```
 

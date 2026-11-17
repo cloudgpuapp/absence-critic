@@ -2,17 +2,20 @@ cff-version: 1.2.0
 message: If you use AbsenceCritic, please cite it as below.
 title: "AbsenceCritic: A Survivorship-Bias Shield for Language Models"
 authors:
-  - family-names: Guzinowich
+  - name: Guzino
+    website: https://github.com/guzino
+    alias: guzino
 type: software
 license: Apache-2.0
 version: 0.1.0
 date-released: "2026-11-17"
+url: https://github.com/guzino
 abstract: >-
   AbsenceCritic is a survivorship-bias shield for language models.
-  It was designed and originated by Guzinowich. The architecture
-  (Wald Module, Non-Survivor Store, Wald checklist) reasons about
-  missing non-survivor evidence rather than only the data that
-  survived into training corpora, retrieval, and evaluation.
+  It was designed and originated by Guzino (https://github.com/guzino).
+  The architecture (Wald Module, Non-Survivor Store, Wald checklist)
+  reasons about missing non-survivor evidence rather than only the data
+  that survived into training corpora, retrieval, and evaluation.
 keywords:
   - survivorship bias
   - language models
