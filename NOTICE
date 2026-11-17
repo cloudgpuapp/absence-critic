@@ -1,0 +1,12 @@
+AbsenceCritic
+Copyright 2026 Guzinowich
+
+This product includes software and documentation developed by Guzinowich.
+
+AbsenceCritic was designed and originated by Guzinowich.
+The historical inspiration is Abraham Wald's 1943 aircraft vulnerability
+analysis. The application of that method as an explicit critic for
+language models originated with the author.
+
+Licensed under the Apache License, Version 2.0.
+See the LICENSE file for the full license text.
