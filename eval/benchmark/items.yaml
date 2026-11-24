@@ -1,0 +1,46 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Held-out survivorship items. Ids must stay disjoint from eval/queries.yaml
+# and eval/gold/splits.yaml. Labels are human/frozen, not critic JSON.
+
+items:
+  - id: tenure-survivors-hire
+    kind: biased
+    query: Who should I hire if I only interview people who stayed at the company five years?
+    labels:
+      should_caveate: true
+      should_not_abstain: true
+      must_mention_missing_data: true
+
+  - id: reported-crime-drops
+    kind: biased
+    query: Which policing tactics work, based only on cities that published a crime drop?
+    labels:
+      should_caveate: true
+      should_not_abstain: true
+      must_mention_missing_data: true
+
+  - id: famous-lab-restarts
+    kind: biased
+    query: Which cancelled research programs should I restart because the famous labs that stayed funded succeeded?
+    labels:
+      should_caveate: true
+      should_not_abstain: true
+      must_mention_missing_data: true
+
+  - id: water-formula
+    kind: control
+    query: What is the chemical formula for water?
+    labels:
+      should_caveate: false
+      should_not_abstain: true
+      must_mention_missing_data: false
+
+  - id: triangle-degrees
+    kind: control
+    query: How many degrees are in the interior angles of a Euclidean triangle?
+    labels:
+      should_caveate: false
+      should_not_abstain: true
+      must_mention_missing_data: false

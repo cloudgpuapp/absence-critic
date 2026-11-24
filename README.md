@@ -123,12 +123,15 @@ print(judged.critique)
 
 ```bash
 python eval/run_eval.py --provider fixture
+python eval/benchmark/score.py
 python -m pytest
 ```
 
 [`eval/queries.yaml`](eval/queries.yaml) has ~12 survivor-biased questions and 3 controls. [`eval/fixtures/responses.yaml`](eval/fixtures/responses.yaml) holds recorded draft/critique/revision triples. Phase 2 gold critic JSONL is [`eval/gold/critiques.jsonl`](eval/gold/critiques.jsonl), split by committed ids in [`eval/gold/splits.yaml`](eval/gold/splits.yaml) into `train.jsonl` and `heldout.jsonl` (`python eval/export_gold.py` after fixture edits). Optional human edits go in [`eval/gold/overlay.yaml`](eval/gold/overlay.yaml) and win on the train/held-out export only; they do not rewrite fixtures. Live critic dumps go to gitignored `eval/gold/incoming/` via `python eval/log_incoming.py --query "..." --provider openai` and stay out of train until a human PR. Fixture 15/15 is product regression, not a training score. To refresh fixtures from a live model, run each query with `--provider openai --json` and replace the matching block in that file.
 
 Critic fine-tune stays off CI: [`scripts/critic_train.md`](scripts/critic_train.md) (`python scripts/train_critic.py --dry-run`). Serve the result through `--critic local`. Do not train the generator on critique JSON.
+
+Held-out survivorship items (disjoint ids, frozen labels, not critic JSON): [`eval/benchmark/`](eval/benchmark/README.md).
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs pytest and fixture eval on `main` and pull requests. It never calls a live provider.
 
