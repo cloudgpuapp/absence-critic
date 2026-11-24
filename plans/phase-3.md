@@ -5,13 +5,15 @@ SPDX-License-Identifier: Apache-2.0
 
 # Phase 3 working plan: Deeper Integration
 
+**Status (2026-11-24):** Engineering tracks A-F are on `main` (judge `score()`, pair export, primary preference recipe, plan prompt, benchmark skeleton, org-store directory). This is not Document 04 success. Track E is five labeled items, not a published robustness result. The default generator and prompted critic are unchanged.
+
 This is an **engineering working plan**, not an origin document. Conceptual spec remains Document 04 Phase 3 and Document 03 integration modes (evaluation harness, training signal) plus Document 02 (benchmarks as survivors, world models that imagine safe futures). Do not rewrite origin `docs/` while executing this plan.
 
 Policy: [`AGENTS.md`](../AGENTS.md). One concern per GitHub PR. CI stays fixture-only.
 
 Document 04 lists four bullets. They are **four tracks**, not one milestone. Each track can look complete while leaving the others empty. Do not merge a "Phase 3" PR that dumps training + benchmark + org SaaS together.
 
-Phase 2 may still be in flight. Track A (judge mode) unblocks measuring Phase 2 swaps and Track B labels. Do not wait for a LoRA to start A.
+Phase 2 slice G is still gated. Track A (`score()`) is how a future swap should be measured. Do not wait for a LoRA to use judge mode.
 
 ## Wald pass on the remaining work
 

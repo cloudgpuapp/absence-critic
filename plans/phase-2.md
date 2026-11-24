@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # Phase 2 working plan: Specialized Critic Model
 
-**Status (2026-11-24):** Slice A (gold freeze) is on `main` (PR #11). Slice B (train/held-out split) is PR #14 so it is not stranded on the old gold branch. Prompted critic stays default.
+**Status (2026-11-24):** Slices A-F are on `main` (gold freeze, train/held-out split, overlay, incoming quarantine, local `CriticPort`, out-of-CI train recipe). Slice G does not land until held-out gold and a live spot-check say the small critic may become default. Prompted critic stays default.
 
 This is an **engineering working plan**, not an origin document. Conceptual spec remains Document 04 Phase 2 and Document 03 (critic as prompt, small model, or hybrid). Do not rewrite origin `docs/` while executing this plan.
 
@@ -15,7 +15,7 @@ Phase 1 left a prompted critic, a retrieve heuristic, and 15 recorded loop tripl
 
 ## Wald pass on the remaining work
 
-**Selection filter:** Exporting JSONL, adding a Hugging Face script, and declaring "we have a critic model" all look like Phase 2. Training on the eval set, treating live Grok dumps as gold, and swapping the default critic without a held-out number do not.
+**Selection filter:** Exporting JSONL, adding a Hugging Face script, and declaring "we have a critic model" all look like Phase 2. Training on the eval set, treating live model dumps as gold, and swapping the default critic without a held-out number do not.
 
 **Visible (already on `main`):**
 - `Critique` JSON is the training target shape.
@@ -27,7 +27,7 @@ Phase 1 left a prompted critic, a retrieve heuristic, and 15 recorded loop tripl
 **Empty regions:**
 - Train / held-out split is not on `main` until PR #14 merges. Until then the 15 fixture critiques *are* the eval. Fine-tuning on them and citing fixture 15/15 is leakage.
 - No human-refine overlay. Fixture critiques are model-shaped, including whatever the recording model got wrong.
-- Live Grok critiques are not gold. They are another prompted run.
+- Live prompted critiques are not gold. They are another prompted run.
 - No `CriticPort` adapter that points at a local or fine-tuned endpoint without also dragging a training stack into `application/`.
 - No decision rule for when the small model becomes default. Prompted critic remains default until that rule fires.
 - Store hits in gold rows are whatever retrieve returned that day. A future retrieve change silently invalidates "gold" unless provenance is recorded.
@@ -107,7 +107,7 @@ Each overlay row: editor, date, reason (what was wrong: hallucinated non-survivo
 - Promotion to train/heldout is a human PR (same overlay discipline).
 - Prefer new query ids over paraphrases of `startup-launch`.
 
-**Not:** auto-promoting live Grok to gold. Not downloading random HF "critique" corpora that are not Wald JSON.
+**Not:** auto-promoting live model dumps to gold. Not downloading random HF "critique" corpora that are not Wald JSON.
 
 **PR:** `feat/gold-incoming-log`.  
 **Tests:** parser rejects rows that do not validate; incoming path is gitignored or fixture-only sample.
