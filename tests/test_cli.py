@@ -102,6 +102,27 @@ def test_cli_local_critic_json(monkeypatch, capsys):
     assert body["draft"]
 
 
+def test_cli_judge_skips_generate(tmp_path, capsys):
+    draft = tmp_path / "draft.txt"
+    draft.write_text("2 + 2 = 4.", encoding="utf-8")
+    code = main(
+        [
+            "--provider",
+            "fixture",
+            "--judge",
+            "--draft-file",
+            str(draft),
+            "--json",
+            "What is 2+2?",
+        ]
+    )
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["draft"] == "2 + 2 = 4."
+    assert payload["final"] == ""
+    assert payload["critique"]["confidence_adjustment"] == "unchanged"
+
+
 def test_cli_no_shield(capsys):
     code = main(["--provider", "fixture", "--no-shield", "--json", "What is 2+2?"])
     assert code == 0

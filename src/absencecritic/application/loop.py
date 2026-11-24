@@ -13,6 +13,46 @@ from absencecritic.application.retrieve import suggested_retrieve_k
 from absencecritic.domain.models import Critique, PipelineResult
 
 
+def _critique_draft(
+    query: str,
+    draft: str,
+    *,
+    critic: CriticPort,
+    store: StorePort,
+    retrieve_k: int,
+) -> tuple[list[str], Critique]:
+    k = suggested_retrieve_k(query, high=retrieve_k)
+    hits = store.retrieve(query, draft, k=k)
+    retrieved_ids = [entry.id for entry, _ in hits]
+    raw_critique = critic.critique(
+        query=query, draft=draft, store_hits=store.format_hits(hits)
+    )
+    critique = Critique.model_validate(parse_json_object(raw_critique))
+    return retrieved_ids, critique
+
+
+def score(
+    query: str,
+    draft: str,
+    *,
+    critic: CriticPort,
+    store: StorePort,
+    retrieve_k: int = 5,
+) -> PipelineResult:
+    """Critique an existing draft. Does not call generate or revise."""
+    retrieved_ids, critique = _critique_draft(
+        query, draft, critic=critic, store=store, retrieve_k=retrieve_k
+    )
+    return PipelineResult(
+        query=query,
+        draft=draft,
+        retrieved_ids=retrieved_ids,
+        critique=critique,
+        final="",
+        shielded=True,
+    )
+
+
 def run(
     query: str,
     *,
@@ -37,13 +77,9 @@ def run(
         raise TypeError("run() requires store= when shield=True")
     if cri is None:
         raise TypeError("run() requires critic= or provider= when shield=True")
-    k = suggested_retrieve_k(query, high=retrieve_k)
-    hits = store.retrieve(query, draft, k=k)
-    retrieved_ids = [entry.id for entry, _ in hits]
-    raw_critique = cri.critique(
-        query=query, draft=draft, store_hits=store.format_hits(hits)
+    retrieved_ids, critique = _critique_draft(
+        query, draft, critic=cri, store=store, retrieve_k=retrieve_k
     )
-    critique = Critique.model_validate(parse_json_object(raw_critique))
     revision = gen.revise(
         query=query,
         draft=draft,
