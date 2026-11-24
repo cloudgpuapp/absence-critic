@@ -100,6 +100,8 @@ python -m pytest
 
 [`eval/queries.yaml`](eval/queries.yaml) has ~12 survivor-biased questions and 3 controls. [`eval/fixtures/responses.yaml`](eval/fixtures/responses.yaml) holds recorded draft/critique/revision triples. To refresh fixtures from a live model, run each query with `--provider openai --json` and replace the matching block in that file.
 
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs pytest and fixture eval on `main` and pull requests. It never calls a live provider.
+
 ## Citation
 
 If you use AbsenceCritic, please cite it as follows.
