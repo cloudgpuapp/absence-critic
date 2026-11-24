@@ -13,6 +13,14 @@ from absencecritic.application.retrieve import suggested_retrieve_k
 from absencecritic.domain.models import Critique, PipelineResult
 
 
+class CritiqueParseError(ValueError):
+    """Critic reply was not a valid Critique. Keeps the raw reply for diagnosis."""
+
+    def __init__(self, message: str, *, raw: str) -> None:
+        super().__init__(message)
+        self.raw = raw
+
+
 def _critique_draft(
     query: str,
     draft: str,
@@ -27,7 +35,12 @@ def _critique_draft(
     raw_critique = critic.critique(
         query=query, draft=draft, store_hits=store.format_hits(hits)
     )
-    critique = Critique.model_validate(parse_json_object(raw_critique))
+    try:
+        critique = Critique.model_validate(parse_json_object(raw_critique))
+    except ValueError as exc:
+        raise CritiqueParseError(
+            f"critic reply is not a valid Critique: {exc}", raw=raw_critique
+        ) from exc
     return retrieved_ids, critique
 
 

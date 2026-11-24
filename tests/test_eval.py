@@ -96,3 +96,29 @@ queries:
         "two-plus-two",
         "ml-tricks",
     ]
+
+
+def test_eval_error_row_keeps_raw_critic_reply(tmp_path, capsys):
+    queries = tmp_path / "queries.yaml"
+    queries.write_text(
+        "queries:\n  - id: two-plus-two\n    kind: control\n    query: What is 2+2?\n",
+        encoding="utf-8",
+    )
+    mod = _eval_mod()
+    real = mod.FixtureLLM(ROOT / "eval" / "fixtures" / "responses.yaml")
+
+    class Garbled:
+        def generate(self, *, query):
+            return real.generate(query=query)
+
+        def critique(self, *, query, draft, store_hits):
+            return "Sure! Here is my critique: risk is high"
+
+        def revise(self, *, query, draft, critique_json):
+            return real.revise(query=query, draft=draft, critique_json=critique_json)
+
+    mod.FixtureLLM = lambda path: Garbled()
+    assert mod.main(["--provider", "fixture", "--queries", str(queries)]) == 1
+    row = json.loads(capsys.readouterr().out)["cases"][0]
+    assert "CritiqueParseError" in row["error"]
+    assert row["raw_critique"] == "Sure! Here is my critique: risk is high"

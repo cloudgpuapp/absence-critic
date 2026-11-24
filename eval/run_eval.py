@@ -34,6 +34,7 @@ MISSING_RE = re.compile(
     r"without data|cannot reveal|visible sample",
     re.I,
 )
+RAW_CRITIQUE_LIMIT = 4000
 ABSTAIN_RE = re.compile(
     r"\b(abstain|cannot recommend|i cannot answer|won't advise)\b", re.I
 )
@@ -165,6 +166,9 @@ def main(argv: list[str] | None = None) -> int:
                         "pass": False,
                         "error": f"{type(exc).__name__}: {exc}",
                     }
+                    raw = getattr(exc, "raw", None)
+                    if raw is not None:
+                        row["raw_critique"] = raw[:RAW_CRITIQUE_LIMIT]
                 rows.append(row)
                 if jsonl is not None:
                     jsonl.write(json.dumps(row, ensure_ascii=False) + "\n")
