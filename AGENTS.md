@@ -21,6 +21,7 @@ Ports-and-adapters around a linear Wald loop. Not LangGraph. Not a single mega-p
 | Adapters | `src/absencecritic/adapters/` | domain, application.ports, prompts, I/O | other adapters' internals, collapsing stages |
 | Eval | `eval/` | public facade / adapters | rewriting domain models |
 | Origin docs | `docs/` | - | edits unless the user asked |
+| Working plans | `plans/` | - | do not copy into origin `docs/` |
 
 Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult`.
 
@@ -33,6 +34,7 @@ Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult
 - New LLM backend -> `adapters/llm/` implementing `GeneratorPort` and `CriticPort`; do not edit `WaldLoop` unless the port itself changes
 - New store backend -> `adapters/store/` implementing `StorePort`
 - Eval queries/fixtures -> `eval/`
+- Phase working plans (not origin) -> `plans/`
 
 ## Forbidden
 
@@ -65,7 +67,7 @@ A PR that collapses draft+critic into one prompt, or that teaches `domain/` abou
 1. Branch from up-to-date `main` (`feat/...`, `fix/...`, `docs/...`). One concern per PR; split mixed layer dumps.
 2. Do not commit `.env`, keys, or live eval transcripts that contain secrets.
 3. Before opening: architecture-guard on the diff, `python -m pytest`, `python eval/run_eval.py --provider fixture`. Live eval only if the user asked.
-4. PR body: why (not a file list), Wald invariant, SOLID/layer check, fixture test plan. Use `.github/pull_request_template.md`. Write the body as a UTF-8 file and pass `--body-file`. Never embed markdown backticks in a PowerShell string: `` `a `` is BEL and shows up as a replacement character in GitHub summaries. Plain text and emoji are fine; no curly quotes, ellipsis characters, or em dashes in commit/PR titles.
+4. PR body: why it exists and how to verify. Use `.github/pull_request_template.md`. Do not list files, "pointers," or invariants this diff did not touch. Write the body as a UTF-8 file and pass `--body-file`. Never embed markdown backticks in a PowerShell string: backtick+a is BEL and shows up as a replacement character in GitHub summaries. Plain text and emoji are fine; no curly quotes, ellipsis characters, or em dashes in commit/PR titles.
 5. Reviewers (including agents): architecture and SOLID first, then tests, then nits. Block on invariant breaks. Do not rewrite origin `docs/` in a drive-by review.
 6. Do not merge, force-push `main`, or skip hooks unless the user explicitly asked.
 7. Address review comments with a new commit on the branch (or an explicit amend the user requested). Do not start a parallel rewrite on `main`.
