@@ -13,6 +13,20 @@ from absencecritic.paths import default_store_dir
 def test_tokenize_drops_stopwords():
     assert "the" not in tokenize("the startup failed")
     assert "startup" in tokenize("the startup failed")
+    assert "who" not in tokenize("Who should I hire")
+
+
+def test_retrieve_hire_tenure_does_not_lead_with_who_pharmacovigilance():
+    store = YamlStore(default_store_dir())
+    query = (
+        "Who should I hire if I only interview people who stayed at the company five years?"
+    )
+    hits = store.retrieve(query, k=5)
+    assert hits
+    ids = [entry.id for entry, _ in hits]
+    assert ids[0] != "who-pharmacovigilance-underreporting"
+    assert "current-employee-tenure-filter" in ids
+    assert "who-pharmacovigilance-underreporting" not in ids[:1]
 
 
 def test_retrieve_ranks_startup_above_unrelated(tmp_path: Path):

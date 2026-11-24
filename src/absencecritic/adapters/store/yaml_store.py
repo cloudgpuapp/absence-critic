@@ -48,6 +48,12 @@ _STOP = {
     "this",
     "to",
     "what",
+    "when",
+    "where",
+    "which",
+    "who",
+    "whom",
+    "whose",
     "with",
 }
 
@@ -223,7 +229,9 @@ class YamlStore:
             ):
                 continue
             overlap = content & bag
-            id_tokens = tokenize(entry.id) - _METHOD_TOKENS
+            id_tokens = {
+                tok for tok in tokenize(entry.id) - _METHOD_TOKENS if len(tok) >= 4
+            }
             id_hit = bool(id_tokens & content)
             domain_hit = _domain_hit(entry.domain, content)
             if not overlap and not domain_hit and not id_hit:
