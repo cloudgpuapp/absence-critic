@@ -36,6 +36,8 @@ Author = "https://github.com/guzino"
 "src/absencecritic/prompts/draft.md" = "absencecritic/prompts/draft.md"
 "src/absencecritic/prompts/critic.md" = "absencecritic/prompts/critic.md"
 "src/absencecritic/prompts/revise.md" = "absencecritic/prompts/revise.md"
+"data/non_survivors/entries.yaml" = "absencecritic/_data/non_survivors/entries.yaml"
+"eval/fixtures/responses.yaml" = "absencecritic/_data/fixtures/responses.yaml"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
