@@ -5,6 +5,24 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 0.1.1 - 2026-11-25
+
+Fixes and eval additions. No API or store schema changes.
+
+### Fixed
+
+- `retrieve_k=0` now turns retrieval off for every question; before, some questions still reached the store, so the critic-only eval arm was not store-free.
+- Factoid control questions are detected by their shape (short "what is", "how many", "which" questions without "because" or "given") instead of a list of topic phrases.
+- A critic reply that is not valid `Critique` JSON raises `CritiqueParseError` (a `ValueError`), which keeps the raw reply for diagnosis.
+
+### Added
+
+- Eval: a `generic` arm that revises against one fixed survivorship-bias caution with no critic call, so the four arms (baseline, generic, critic-only, shield) separate "critic vs reminder" from "store vs no store". The README explains the arms. Fixture output marks arm differences as not meaningful.
+- Eval error rows keep the critic's raw reply (`raw_critique`).
+- The benchmark runner shares one draft across arms.
+- `eval/export_gold.py --overlay`, and an xAI example in the README and `.env.example`.
+- Store: every cited entry now links its source (19 of 26; the other 7 are author priors).
+
 ## 0.1.0 - 2026-11-24
 
 First public alpha. The API, store schema, and prompts may still change.
