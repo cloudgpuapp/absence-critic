@@ -3,6 +3,7 @@
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -213,3 +214,24 @@ def test_fixture_runner_writes_answers_and_score_reports_agreement(tmp_path, cap
     shield = [row for row in payload["cases"] if row.get("arm") == "shield"]
     assert all(row["pass"] for row in shield)
     assert code in {0, 1}
+
+
+def test_score_main_loads_repo_env_before_judging(tmp_path, monkeypatch, capsys):
+    mod = _score_mod()
+    item = mod.load_items()[0]
+    answers = tmp_path / "answers.jsonl"
+    answers.write_text(json.dumps({"id": item["id"], "answer": "x"}) + "\n", encoding="utf-8")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setattr(
+        mod, "load_repo_env", lambda: monkeypatch.setenv("OPENAI_API_KEY", "from-dotenv")
+    )
+    seen = []
+
+    def fake_judge(item, answer, **kwargs):
+        seen.append(os.environ.get("OPENAI_API_KEY"))
+        return {"kind": "benchmark-rubric-llm", "pass": True}
+
+    monkeypatch.setattr(mod, "judge_answer", fake_judge)
+    mod.main(["--answers", str(answers), "--judge", "openai"])
+    capsys.readouterr()
+    assert seen == ["from-dotenv"]
