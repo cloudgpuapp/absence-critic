@@ -173,6 +173,8 @@ class YamlStore:
     def _iter_files(self) -> list[Path]:
         files: list[Path] = []
         for path in self.directory.iterdir():
+            # Nested private/ is gitignored and not retrieved. Org memory is a
+            # separate ABSENCECRITIC_STORE directory, not this folder.
             if path.name == "private" and path.is_dir():
                 continue
             if path.suffix.lower() in {".yaml", ".yml", ".json", ".jsonl"}:
