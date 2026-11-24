@@ -34,6 +34,70 @@ The original design package is kept in [`docs/`](docs/00-README.md) so the conce
 
 Core claim: a model trained only on the planes that returned will correctly learn the distribution of survivable damage. Robustness requires an explicit process that reasons about the planes that did not return. That process is AbsenceCritic.
 
+## Phase 0 — minimal shield
+
+Python package plus CLI. Loop: primary draft (no store) → keyword retrieval from the Non-Survivor Store → Wald critic JSON → primary revision. Tests and eval use recorded fixtures so they run without an API key.
+
+### Install
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+### CLI
+
+```bash
+absencecritic "What works for launching a startup?"
+absencecritic --no-shield "What works for launching a startup?"
+absencecritic --show-critique --json "What works for launching a startup?"
+```
+
+`--provider` is `fixture` unless `OPENAI_API_KEY` is set (then the default is `openai`). Force either:
+
+```bash
+absencecritic --provider fixture "What is 2+2?"
+absencecritic --provider openai "What works for launching a startup?"
+```
+
+Live OpenAI-compatible calls (OpenAI, OpenRouter, or a local server):
+
+```bash
+# Windows PowerShell
+$env:OPENAI_API_KEY = "..."
+$env:OPENAI_BASE_URL = "https://api.openai.com/v1"   # optional
+$env:ABSENCECRITIC_MODEL = "gpt-4o-mini"             # optional
+absencecritic --provider openai "What works for launching a startup?"
+```
+
+Copy [`.env.example`](.env.example) for the variable names. Store path: `ABSENCECRITIC_STORE` (default [`data/non_survivors/`](data/non_survivors/)).
+
+Library:
+
+```python
+from absencecritic.paths import default_store_dir
+from absencecritic.pipeline import run
+from absencecritic.providers.fixture import FixtureProvider
+from absencecritic.store import NonSurvivorStore
+
+result = run(
+    "What works for launching a startup?",
+    provider=FixtureProvider(...),  # or OpenAICompatibleProvider()
+    store=NonSurvivorStore(default_store_dir()),
+    shield=True,
+)
+print(result.final)
+print(result.critique)
+```
+
+### Eval and tests
+
+```bash
+python eval/run_eval.py --provider fixture
+python -m pytest
+```
+
+[`eval/queries.yaml`](eval/queries.yaml) has ~12 survivor-biased questions and 3 controls. [`eval/fixtures/responses.yaml`](eval/fixtures/responses.yaml) holds recorded draft/critique/revision triples. To refresh fixtures from a live model, run each query with `--provider openai --json` and replace the matching block in that file.
+
 ## Citation
 
 If you use AbsenceCritic, please cite it as follows.

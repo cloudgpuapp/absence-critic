@@ -1,0 +1,37 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "absencecritic"
+version = "0.1.0"
+description = "Survivorship-bias shield (Wald Module) for language models"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+  { name = "Guzino" },
+]
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.0",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+absencecritic = "absencecritic.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/guzino/absence-critic"
+Author = "https://github.com/guzino"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

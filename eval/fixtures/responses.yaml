@@ -1,0 +1,519 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Recorded draft / critique / revision triples. Tests and eval use these
+# so CI needs no API keys. To regenerate with a live provider, run each
+# query with `--provider openai --json` and replace the matching block.
+
+- query: What works for launching a startup?
+  draft: >-
+    Launch fast: talk to users, ship an MVP in weeks, raise from a named seed
+    fund, and copy playbooks from YC companies that scaled. Founders who do
+    this reliably succeed.
+  critique:
+    selection_filter: >-
+      Startup advice is written by firms that lasted long enough to publish
+      or raise, plus a thinner set of announced shutdowns with post-mortems.
+    visible_damage:
+      - YC-style MVP and fundraising recipes
+      - Success stories treated as a method
+    empty_regions:
+      - Silent closures and unfunded attempts
+      - Base rates of establishment death
+    non_survivors:
+      - id: bls-establishment-survival
+        summary: A large share of new establishments close within a few years.
+        provenance: U.S. BLS Business Employment Dynamics survival tables
+        confidence: 0.85
+      - id: cbinsights-postmortem-filter
+        summary: Post-mortem lists sample announced shutdowns with write-ups.
+        provenance: CB Insights post-mortem compilations
+        confidence: 0.7
+    unknown_lethality: []
+    survivorship_risk: 0.86
+    confidence_adjustment: lower
+    caveats:
+      - Visible playbooks describe survivors, not the attempt distribution.
+      - Do not treat fundraising recipes as a guarantee.
+    missing_categories:
+      - Unfunded attempts
+      - Firms that died without a post-mortem
+    suggested_queries:
+      - BLS establishment survival by age
+      - unpublished shutdown rates by sector
+  revision: >-
+    Common published playbooks say ship an MVP, talk to users, and raise seed
+    capital. Those stories are the planes that returned. U.S. BLS establishment
+    data show a large share of new firms close within a few years, and most
+    failed attempts never write a post-mortem, so base rates of failure are
+    missing from advice blogs. Treat those recipes as survivor-conditioned,
+    not as a method that reliably succeeds. Seek sector-specific closure data
+    before copying a fundraise script.
+
+- query: How do I get a paper published quickly?
+  draft: >-
+    Pick a hot topic, aim for a significant positive result, and submit to a
+    high-impact journal. That is how successful labs publish.
+  critique:
+    selection_filter: Journals and careers favor novel positive findings; nulls are less written up.
+    visible_damage:
+      - Advice to produce significant results quickly
+    empty_regions:
+      - File-drawer studies
+      - Failed replications
+    non_survivors:
+      - id: franco-2014-file-drawer
+        summary: Null social-science experiments were much less likely to be published.
+        provenance: Franco, Malhotra, Simonovits, Science, 2014
+        confidence: 0.85
+      - id: ioannidis-2005
+        summary: Under realistic bias and power, many published findings may be false.
+        provenance: Ioannidis, PLoS Medicine, 2005
+        confidence: 0.8
+    unknown_lethality: []
+    survivorship_risk: 0.82
+    confidence_adjustment: lower
+    caveats:
+      - Speed toward a significant result is a selection filter, not a validity recipe.
+    missing_categories:
+      - Unpublished nulls
+    suggested_queries:
+      - registered reports
+      - replication rates in the target field
+  revision: >-
+    High-impact journals disproportionately publish novel positive results.
+    Franco et al. (2014) showed null experiments are far less likely to appear,
+    and Ioannidis (2005) warns that this filter inflates false findings. A
+    "publish quickly" plan that aims at significance is riding the returning
+    bombers. Prefer preregistration or registered reports, and treat unpublished
+    nulls as an unknown lethality region rather than evidence that the effect
+    is real.
+
+- query: What is the best diet based on published nutrition studies?
+  draft: >-
+    Published studies show a clear winner; follow the latest headline diet
+    and you will get the reported benefits.
+  critique:
+    selection_filter: Nutrition papers and headlines prefer associations that look newsworthy.
+    visible_damage:
+      - Treating published diet findings as a ranking of what works
+    empty_regions:
+      - Null diet trials
+      - Residual confounding
+    non_survivors:
+      - id: nutrition-publication-bias
+        summary: Nutritional epidemiology is prone to selective reporting and weak causal identification.
+        provenance: Ioannidis, JAMA, 2018
+        confidence: 0.7
+    unknown_lethality:
+      - Long-term harms or nulls that were never published for a given diet brand
+    survivorship_risk: 0.78
+    confidence_adjustment: seek_more_data
+    caveats:
+      - Published nutrition associations are not a tournament bracket of true effects.
+    missing_categories:
+      - Unpublished null trials
+    suggested_queries:
+      - Cochrane diet reviews
+      - preregistered nutrition RCTs
+  revision: >-
+    You cannot name "the best diet" from the published nutrition corpus alone.
+    That literature over-represents positive associations (Ioannidis, JAMA 2018)
+    and under-reports nulls. The missing category is unpublished or unexciting
+    trials. Seek systematic reviews of preregistered RCTs; until then, treat
+    headline rankings as survivor-conditioned, not as a best-diet proof.
+
+- query: Why do most successful founders drop out of college?
+  draft: >-
+    Most successful founders drop out because school slows them down. The
+    pattern among famous companies proves it.
+  critique:
+    selection_filter: Media samples spectacular dropout-founders, not dropouts at large.
+    visible_damage:
+      - Celebrity dropout stories treated as a causal recipe
+    empty_regions:
+      - Dropouts without famous companies
+      - Graduates who founded firms quietly
+    non_survivors:
+      - id: college-dropout-founder-myth
+        summary: Famous dropout-founders are a selected media sample.
+        provenance: Survivorship of celebrity founder coverage
+        confidence: 0.75
+    unknown_lethality: []
+    survivorship_risk: 0.84
+    confidence_adjustment: lower
+    caveats:
+      - Conditioning on famous outcomes hides the base rate of dropouts without valuable firms.
+    missing_categories:
+      - Unfamous dropouts
+    suggested_queries:
+      - education distribution among founders, not among famous founders
+  revision: >-
+    Famous dropout founders are highly visible; that is not evidence that "most
+    successful founders" drop out or that dropping out causes success. The
+    empty region is dropouts who never become famous. Conditioning on celebrity
+    survivors inverts the armor: you copy a rare path and ignore base rates.
+    If you need a decision, look at education among founders at large, not
+    among magazine covers.
+
+- query: What treatments work for rare diseases?
+  draft: >-
+    Use the same drugs that work in common diseases and the published case
+    reports; those are the proven treatments.
+  critique:
+    selection_filter: Common diseases generate trials and guidelines; rare conditions often only case series.
+    visible_damage:
+      - Extrapolation from common-disease drugs and published cases
+    empty_regions:
+      - Patients never entered in a registry
+      - Unpublished adverse events
+    non_survivors:
+      - id: rare-disease-evidence-gap
+        summary: Rare-disease evidence is sparse; absence of trials is not proof of safety or efficacy.
+        provenance: Rare-disease registry literature / Orphanet-type evidence gaps
+        confidence: 0.7
+      - id: faers-underreporting
+        summary: Spontaneous adverse-event systems do not establish incidence.
+        provenance: FDA FAERS limitations
+        confidence: 0.8
+    unknown_lethality:
+      - Specific off-label regimens not covered by the store
+    survivorship_risk: 0.8
+    confidence_adjustment: seek_more_data
+    caveats:
+      - Do not treat missing trials as evidence that common-disease drugs work in the rare setting.
+    missing_categories:
+      - Unregistered patients
+      - Unreported harms
+    suggested_queries:
+      - Orphanet / FDA orphan designations
+      - registered rare-disease trials
+  revision: >-
+    There is usually no dense RCT literature for a rare disease. Published case
+    reports are the returning bombers; patients who were never registered and
+    harms that were never reported are missing (FDA FAERS does not give rates).
+    Do not assume common-disease drugs work here. Seek registries, orphan
+    designations, and registered trials; where those are empty, the honest
+    answer is unknown lethality, not a copied formulary.
+
+- query: Summarize lessons learned from startup post-mortems.
+  draft: >-
+    Post-mortems agree: no market need, ran out of cash, wrong team. Follow
+    the inverse of those lists and you will not fail.
+  critique:
+    selection_filter: Only shutdowns that produced a public write-up enter post-mortem corpora.
+    visible_damage:
+      - Ranked failure reasons from published post-mortems
+    empty_regions:
+      - Quiet deaths without a blog post
+    non_survivors:
+      - id: cbinsights-postmortem-filter
+        summary: Aggregated reasons come from announced shutdowns with write-ups.
+        provenance: CB Insights post-mortem compilations
+        confidence: 0.7
+      - id: bls-establishment-survival
+        summary: Many establishments close without entering advice corpora.
+        provenance: BLS BED
+        confidence: 0.85
+    unknown_lethality: []
+    survivorship_risk: 0.77
+    confidence_adjustment: lower
+    caveats:
+      - Inverting a post-mortem list still trains on the visible wrecks, not the silent majority.
+    missing_categories:
+      - No-writeup closures
+    suggested_queries:
+      - sector closure rates
+  revision: >-
+    Public post-mortems often cite no market need, cash, and team issues.
+    Those documents exist only when someone announced a shutdown and wrote
+    it up, so the list is a selected wreck sample (CB Insights-style
+    compilations), while BLS data show far more quiet closures. The missing
+    category is shutdowns with no write-up. Summarize the published reasons
+    as what documented shutdowns said, not as a complete failure
+    distribution, and do not treat the inverse list as armor.
+
+- query: Which ML tricks always improve accuracy?
+  draft: >-
+    Residual connections, more data, and the latest optimizer always improve
+    accuracy. Papers show consistent gains.
+  critique:
+    selection_filter: ML papers report methods that beat a chosen baseline; failed ablations are rarely published.
+    visible_damage:
+      - Universal-trick claims from published gains
+    empty_regions:
+      - Negative results
+      - Shifts off the reported split
+    non_survivors:
+      - id: ml-papers-positive-results
+        summary: Failed ablations are rarely published.
+        provenance: Publication-bias pattern in ML reporting
+        confidence: 0.7
+      - id: leaderboard-overfitting
+        summary: Leaderboard and test-set reuse inflate apparent gains.
+        provenance: Recht et al., ICML 2019; adaptive overfitting literature
+        confidence: 0.75
+    unknown_lethality: []
+    survivorship_risk: 0.81
+    confidence_adjustment: lower
+    caveats:
+      - Always is not identified from a corpus of wins.
+    missing_categories:
+      - Negative ablations
+    suggested_queries:
+      - papers with negative results
+      - fresh test sets
+  revision: >-
+    Published ML papers mostly show tricks that beat a baseline on a reported
+    split. Failed ablations are missing, and leaderboard reuse can inflate
+    gains (Recht et al. 2019). Nothing in that survivor set identifies a trick
+    that always improves accuracy. Expect regressions off-distribution; look
+    for negative results and a fresh test set before treating a trick as
+    universal.
+
+- query: How should I plan a product launch that is guaranteed to succeed?
+  draft: >-
+    Copy the launch checklist from recent successful products, buy ads, and
+    you are guaranteed to succeed.
+  critique:
+    selection_filter: Launch advice is written about products that shipped and were discussed.
+    visible_damage:
+      - Success checklists
+      - Guarantee language
+    empty_regions:
+      - Quietly cancelled launches
+      - Demo-to-production gaps
+    non_survivors:
+      - id: demo-production-gap
+        summary: Demos are selected because they look impressive.
+        provenance: Demo vs production distribution shift
+        confidence: 0.7
+      - id: bls-establishment-survival
+        summary: Many new establishments do not survive.
+        provenance: BLS BED
+        confidence: 0.85
+    unknown_lethality: []
+    survivorship_risk: 0.88
+    confidence_adjustment: abstain
+    caveats:
+      - No public playbook can guarantee a launch.
+    missing_categories:
+      - Cancelled launches
+    suggested_queries:
+      - pre-launch kill rates inside comparable firms
+  revision: >-
+    There is no plan that is guaranteed to succeed. Checklists from products
+    that launched and were written about are survivor stories; cancelled
+    launches and demo-only artifacts are mostly missing, and many new
+    establishments close (BLS). I will not give a guarantee recipe. You can
+    still reduce risk with pre-launch tests and by treating unpublished kill
+    rates as unknown lethality, but that is caution, not armor that makes
+    success certain.
+
+- query: What does the literature say about this supplement?
+  draft: >-
+    The literature supports taking the supplement; published studies report
+    benefits and few risks.
+  critique:
+    selection_filter: Supplement papers and marketing cite positive associations; nulls and unreported harms are weaker in the record.
+    visible_damage:
+      - Positive published studies treated as the literature
+    empty_regions:
+      - Null trials
+      - Under-reported adverse events
+    non_survivors:
+      - id: nutrition-publication-bias
+        summary: Positive nutrition/supplement findings are more visible.
+        provenance: Ioannidis, JAMA, 2018
+        confidence: 0.7
+      - id: who-pharmacovigilance-underreporting
+        summary: Spontaneous reporting captures an unknown fraction of events.
+        provenance: WHO pharmacovigilance guidance
+        confidence: 0.75
+    unknown_lethality:
+      - The unnamed supplement's actual trial register
+    survivorship_risk: 0.8
+    confidence_adjustment: seek_more_data
+    caveats:
+      - The literature usually means the published positive subset.
+    missing_categories:
+      - Unpublished nulls
+      - Unreported harms
+    suggested_queries:
+      - ClinicalTrials.gov for the specific compound
+      - FDA/EMA safety communications
+  revision: >-
+    "The literature" on supplements is typically the published positive
+    subset, not the trial register. Nulls are less visible (nutrition
+    publication bias) and spontaneous adverse-event systems under-report
+    (WHO/FDA). I cannot endorse "this supplement" from survivor papers
+    alone. Check the named compound on ClinicalTrials.gov and regulator
+    communications; if those are empty or mixed, the honest summary is
+    uncertain benefit and unknown lethality, not proven benefit with few
+    risks.
+
+- query: Show me what has been tried in fusion energy that works.
+  draft: >-
+    Recent announcements show fusion that works. Follow the latest milestone
+    device; the path is now proven.
+  critique:
+    selection_filter: Press and journals highlight milestone announcements; failed device campaigns are less narrated as a base rate.
+    visible_damage:
+      - Milestone stories treated as a working recipe
+    empty_regions:
+      - Failed or unpublished device campaigns
+    non_survivors:
+      - id: fusion-announcement-filter
+        summary: Milestone journalism is not a deployment base rate.
+        provenance: Historical fusion announcement coverage vs unpublished campaigns
+        confidence: 0.6
+    unknown_lethality:
+      - Specific machine performance not in the store
+    survivorship_risk: 0.74
+    confidence_adjustment: lower
+    caveats:
+      - A survived announcement is not "what works" as a plant.
+    missing_categories:
+      - Quietly ended approaches
+    suggested_queries:
+      - IAEA fusion device databases
+      - net-gain definitions vs commercial criteria
+  revision: >-
+    Announcements of fusion milestones are the returning bombers. Decades of
+    approaches that missed net-gain or commercial criteria are weakly present
+    in popular summaries. "What works" in press terms is not a proven plant
+    recipe. Lower confidence: cite the specific metric (scientific gain vs
+    engineering gain vs cost) and treat unpublished device campaigns as
+    missing mass, not as evidence that the latest story is the path.
+
+- query: How do I know my model is production-ready from a leaderboard score?
+  draft: >-
+    If you are near the top of the public leaderboard, the model is
+    production-ready.
+  critique:
+    selection_filter: Leaderboards keep models that scored well enough to post; test sets are reused.
+    visible_damage:
+      - Rank as a readiness certificate
+    empty_regions:
+      - Production tails and shifted data
+      - Unposted poor runs
+    non_survivors:
+      - id: leaderboard-overfitting
+        summary: Adaptive use of holdouts inflates scores.
+        provenance: Recht et al. 2019; Dwork et al. on holdout overfitting
+        confidence: 0.75
+      - id: demo-production-gap
+        summary: Impressive demos are selected.
+        provenance: Demo vs production shift
+        confidence: 0.7
+      - id: chatbot-arena-selection
+        summary: Volunteer arenas sample users and prompts who show up.
+        provenance: Arena self-selection
+        confidence: 0.65
+    unknown_lethality: []
+    survivorship_risk: 0.83
+    confidence_adjustment: lower
+    caveats:
+      - A public score is not a production incident distribution.
+    missing_categories:
+      - Silent production failures
+    suggested_queries:
+      - held-out production traces
+      - slice-wise error analysis
+  revision: >-
+    A high leaderboard score is not a production-readiness certificate.
+    Scores are conditioned on models people posted, often on reused tests
+    (Recht et al. 2019), and arenas sample volunteers' prompts. The missing
+    planes are production tails and unposted failures. Use held-out traces
+    from the actual deployment distribution; until those exist, treat
+    leaderboard rank as a survivor metric, not as armor.
+
+- query: What career advice actually works based on LinkedIn stories?
+  draft: >-
+    LinkedIn shows that cold outreach and personal branding always work.
+    Copy the viral posts.
+  critique:
+    selection_filter: Career platforms amplify people whose paths look good enough to post.
+    visible_damage:
+      - Viral tactics treated as universal
+    empty_regions:
+      - Failed applications and stalled careers
+    non_survivors:
+      - id: linkedin-success-narratives
+        summary: Failed tactics are under-posted.
+        provenance: Platform incentive filter
+        confidence: 0.6
+      - id: self-help-book-filter
+        summary: Published advice is what sold, not what failed for readers.
+        provenance: Commercial advice selection
+        confidence: 0.6
+    unknown_lethality: []
+    survivorship_risk: 0.79
+    confidence_adjustment: lower
+    caveats:
+      - Viral career posts are not an identified treatment effect.
+    missing_categories:
+      - Quiet unsuccessful job searches
+    suggested_queries:
+      - labor statistics for the role
+      - application-to-offer rates
+  revision: >-
+    LinkedIn stories that "always work" are posted by people whose outcomes
+    were good enough to share. Failed outreach and stalled searches are
+    under-documented. That is a selection filter, not evidence that cold
+    outreach or personal branding actually works as a treatment. Prefer
+    labor-market base rates (openings, conversion) over viral posts, and
+    treat unpublished unsuccessful searches as missing data.
+
+- query: What is the boiling point of water at standard pressure?
+  draft: >-
+    Water boils at 100 degrees Celsius (212 degrees Fahrenheit) at 1 atmosphere.
+  critique:
+    selection_filter: This is a well-supported physical constant under a stated standard, not a survivor-sampled advice corpus.
+    visible_damage: []
+    empty_regions: []
+    non_survivors: []
+    unknown_lethality: []
+    survivorship_risk: 0.05
+    confidence_adjustment: unchanged
+    caveats: []
+    missing_categories: []
+    suggested_queries: []
+  revision: >-
+    Water boils at 100 °C (212 °F) at standard atmospheric pressure
+    (1 atm). No survivorship adjustment is required for this fact.
+
+- query: Quote Abraham Wald's survivorship-bias insight in one sentence.
+  draft: >-
+    Wald's insight is that you should armor the parts of returning aircraft
+    that show the fewest holes, because hits there kept planes from returning.
+  critique:
+    selection_filter: The user asked for a historical insight that is itself about selection; the request is well-posed.
+    visible_damage: []
+    empty_regions: []
+    non_survivors: []
+    unknown_lethality: []
+    survivorship_risk: 0.1
+    confidence_adjustment: unchanged
+    caveats: []
+    missing_categories: []
+    suggested_queries: []
+  revision: >-
+    Wald's insight, in one sentence: when you only see the planes that
+    returned, the missing holes mark the lethal hits, so armor the undamaged
+    regions rather than the visible ones.
+
+- query: What is 2+2?
+  draft: "2 + 2 = 4."
+  critique:
+    selection_filter: Arithmetic identity; not filtered by publication or platform survival.
+    visible_damage: []
+    empty_regions: []
+    non_survivors: []
+    unknown_lethality: []
+    survivorship_risk: 0.0
+    confidence_adjustment: unchanged
+    caveats: []
+    missing_categories: []
+    suggested_queries: []
+  revision: "2 + 2 = 4."

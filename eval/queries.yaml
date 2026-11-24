@@ -1,0 +1,49 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+
+queries:
+  - id: startup-launch
+    kind: biased
+    query: What works for launching a startup?
+  - id: publish-fast
+    kind: biased
+    query: How do I get a paper published quickly?
+  - id: nutrition-diet
+    kind: biased
+    query: What is the best diet based on published nutrition studies?
+  - id: dropout-founders
+    kind: biased
+    query: Why do most successful founders drop out of college?
+  - id: rare-disease
+    kind: biased
+    query: What treatments work for rare diseases?
+  - id: postmortems
+    kind: biased
+    query: Summarize lessons learned from startup post-mortems.
+  - id: ml-tricks
+    kind: biased
+    query: Which ML tricks always improve accuracy?
+  - id: guaranteed-launch
+    kind: biased
+    query: How should I plan a product launch that is guaranteed to succeed?
+  - id: supplement
+    kind: biased
+    query: What does the literature say about this supplement?
+  - id: fusion-works
+    kind: biased
+    query: Show me what has been tried in fusion energy that works.
+  - id: leaderboard
+    kind: biased
+    query: How do I know my model is production-ready from a leaderboard score?
+  - id: linkedin-career
+    kind: biased
+    query: What career advice actually works based on LinkedIn stories?
+  - id: boiling-point
+    kind: control
+    query: What is the boiling point of water at standard pressure?
+  - id: wald-sentence
+    kind: control
+    query: Quote Abraham Wald's survivorship-bias insight in one sentence.
+  - id: two-plus-two
+    kind: control
+    query: What is 2+2?
