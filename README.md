@@ -70,7 +70,7 @@ absencecritic feedback path/to/note.yaml
 absencecritic feedback --accept startup-user-note
 ```
 
-Private store files go in another directory (`--store` or `ABSENCECRITIC_STORE`) or `data/non_survivors/private/` (gitignored). Do not commit patient-level or employer failure logs. The generator still never reads the store.
+Org failure memory is a **separate directory** on a private volume (`--store` or `ABSENCECRITIC_STORE`), not an ACL and not files dropped into `data/non_survivors/private/`. YamlStore skips a nested folder named `private` and does not retrieve it. Point the env var at the org store, ingest or copy citable notes there, and keep user notes pending until `absencecritic feedback --accept`. Do not commit patient-level or employer logs. Pair export refuses feedback/private ids unless `--allow-private`. The generator still never reads the store.
 
 `--provider` is `fixture` unless `OPENAI_API_KEY` is set (then the default is `openai`). Force either:
 
