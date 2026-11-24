@@ -79,6 +79,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="AbsenceCritic Phase 0 eval")
     parser.add_argument("--provider", choices=("fixture", "openai"), default="fixture")
     parser.add_argument("--queries", type=Path, default=ROOT / "eval" / "queries.yaml")
+    parser.add_argument(
+        "--jsonl",
+        type=Path,
+        help="Append each case as JSONL as it finishes (keeps partial results)",
+    )
     args = parser.parse_args(argv)
     load_repo_env()
 
@@ -88,16 +93,48 @@ def main(argv: list[str] | None = None) -> int:
         else OpenAICompat()
     )
     store = YamlStore(ROOT / "data" / "non_survivors")
+    jsonl = args.jsonl.open("w", encoding="utf-8") if args.jsonl else None
     rows = []
-    for item in load_queries(args.queries):
-        q = item["query"]
-        baseline = run(q, provider=provider, store=store, shield=False)
-        shielded = run(q, provider=provider, store=store, shield=True)
-        rows.append(score_case(item, shielded, baseline))
+    try:
+        for item in load_queries(args.queries):
+            q = item["query"]
+            try:
+                baseline = run(q, provider=provider, store=store, shield=False)
+                shielded = run(q, provider=provider, store=store, shield=True)
+                row = score_case(item, shielded, baseline)
+            except Exception as exc:
+                if isinstance(exc, (KeyboardInterrupt, SystemExit)):
+                    raise
+                row = {
+                    "id": item.get("id"),
+                    "kind": item.get("kind"),
+                    "pass": False,
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
+            rows.append(row)
+            if jsonl is not None:
+                jsonl.write(json.dumps(row, ensure_ascii=False) + "\n")
+                jsonl.flush()
+    finally:
+        if jsonl is not None:
+            jsonl.close()
 
-    n_pass = sum(1 for r in rows if r["pass"])
-    print(json.dumps({"passed": n_pass, "total": len(rows), "cases": rows}, indent=2))
-    return 0 if n_pass == len(rows) else 1
+    n_pass = sum(1 for r in rows if r.get("pass") and "error" not in r)
+    n_error = sum(1 for r in rows if "error" in r)
+    n_fail = sum(1 for r in rows if not r.get("pass") and "error" not in r)
+    print(
+        json.dumps(
+            {
+                "passed": n_pass,
+                "failed": n_fail,
+                "errored": n_error,
+                "total": len(rows),
+                "cases": rows,
+            },
+            indent=2,
+        )
+    )
+    return 0 if n_fail == 0 and n_error == 0 else 1
 
 
 if __name__ == "__main__":
