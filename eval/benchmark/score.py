@@ -8,11 +8,17 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 import yaml
 
-ITEMS_PATH = Path(__file__).resolve().parent / "items.yaml"
+_BENCH_DIR = Path(__file__).resolve().parent
+if str(_BENCH_DIR) not in sys.path:
+    sys.path.insert(0, str(_BENCH_DIR))
+from judge import judge_answer  # noqa: E402
+
+ITEMS_PATH = _BENCH_DIR / "items.yaml"
 
 MISSING_RE = re.compile(
     r"missing|unpublished|base[- ]rate|file drawer|unknown|non-survivor|"
@@ -54,9 +60,6 @@ def score_answer(item: dict, answer: str, *, abstained: bool | None = None) -> d
         ok = False
     if labels["should_not_abstain"] and abstained:
         ok = False
-    if item["kind"] == "control" and not labels["should_caveate"] and mentioned:
-        # Controls may mention the word "unknown" in passing; only fail hard abstention.
-        pass
     return {
         "id": item["id"],
         "kind": item["kind"],
@@ -74,7 +77,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--answers",
         type=Path,
-        help="JSONL rows with id and answer (optional abstained bool)",
+        help="JSONL rows with id and answer (optional arm, abstained bool)",
+    )
+    parser.add_argument(
+        "--judge",
+        choices=("none", "heuristic", "openai"),
+        default="heuristic",
+        help="Rubric judge beside the regex scorer (never the critic under test)",
     )
     args = parser.parse_args(argv)
     items = {item["id"]: item for item in load_items(args.items)}
@@ -88,15 +97,35 @@ def main(argv: list[str] | None = None) -> int:
         payload = json.loads(line)
         item = items[payload["id"]]
         abstained = payload.get("abstained")
-        rows.append(
-            score_answer(
-                item,
-                str(payload.get("answer", "")),
-                abstained=None if abstained is None else bool(abstained),
-            )
+        abstained_flag = None if abstained is None else bool(abstained)
+        answer = str(payload.get("answer", ""))
+        regex = score_answer(item, answer, abstained=abstained_flag)
+        judged = judge_answer(
+            item, answer, abstained=abstained_flag, kind=args.judge
         )
+        row = dict(regex)
+        if payload.get("arm"):
+            row["arm"] = payload["arm"]
+        row["regex_pass"] = regex["pass"]
+        row["judge"] = judged
+        if judged.get("pass") is None:
+            row["agree"] = None
+        else:
+            row["agree"] = bool(regex["pass"]) == bool(judged["pass"])
+        rows.append(row)
     n_pass = sum(1 for row in rows if row["pass"])
-    print(json.dumps({"passed": n_pass, "total": len(rows), "cases": rows}, indent=2))
+    judged_rows = [row for row in rows if row["judge"].get("pass") is not None]
+    n_agree = sum(1 for row in judged_rows if row["agree"])
+    payload_out = {
+        "passed": n_pass,
+        "total": len(rows),
+        "judge_kind": None if args.judge == "none" else judged_rows[0]["judge"]["kind"]
+        if judged_rows
+        else args.judge,
+        "agreement": (n_agree / len(judged_rows)) if judged_rows else None,
+        "cases": rows,
+    }
+    print(json.dumps(payload_out, indent=2))
     return 0 if n_pass == len(rows) else 1
 
 
