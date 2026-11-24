@@ -19,6 +19,10 @@ if str(_BENCH_DIR) not in sys.path:
     sys.path.insert(0, str(_BENCH_DIR))
 from judge import judge_answer  # noqa: E402
 
+if str(_BENCH_DIR.parent) not in sys.path:
+    sys.path.insert(0, str(_BENCH_DIR.parent))
+from answer_checks import leaks_pipeline  # noqa: E402
+
 ITEMS_PATH = _BENCH_DIR / "items.yaml"
 
 MISSING_RE = re.compile(
@@ -87,11 +91,15 @@ def score_answer(item: dict, answer: str, *, abstained: bool | None = None) -> d
         ok = False
     if labels["should_not_abstain"] and abstained:
         ok = False
+    leak = leaks_pipeline(text)
+    if leak:
+        ok = False
     return {
         "id": item["id"],
         "kind": item["kind"],
         "mentioned_missing_data": mentioned,
         "abstained": abstained,
+        "pipeline_leak": leak,
         "pass": ok,
     }
 
