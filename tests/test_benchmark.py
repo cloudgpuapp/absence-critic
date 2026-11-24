@@ -194,17 +194,20 @@ def test_fixture_runner_writes_answers_and_score_reports_agreement(tmp_path, cap
     out = tmp_path / "answers.jsonl"
     assert _run_mod().main(["--provider", "fixture", "--out", str(out)]) == 0
     written = json.loads(capsys.readouterr().out)
-    assert written["wrote"] == 15
+    assert written["wrote"] == 20
+    assert "not a result" in written["note"]
     lines = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
-    assert {row["arm"] for row in lines} == {"baseline", "critic_only", "shield"}
+    assert {row["arm"] for row in lines} == {"baseline", "generic", "critic_only", "shield"}
     by_id: dict[str, set[str]] = {}
     for row in lines:
         by_id.setdefault(row["id"], set()).add(row["draft"])
     assert all(len(drafts) == 1 for drafts in by_id.values())
-    assert all(row["retrieved_ids"] == [] for row in lines if row["arm"] == "critic_only")
+    assert all(
+        row["retrieved_ids"] == [] for row in lines if row["arm"] in {"generic", "critic_only"}
+    )
     code = _score_mod().main(["--answers", str(out)])
     payload = json.loads(capsys.readouterr().out)
-    assert payload["total"] == 15
+    assert payload["total"] == 20
     assert payload["agreement"] is not None
     assert "benchmark-rubric" in payload["judge_kind"]
     shield = [row for row in payload["cases"] if row.get("arm") == "shield"]

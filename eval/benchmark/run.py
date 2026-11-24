@@ -23,6 +23,10 @@ from absencecritic.adapters.store.yaml_store import YamlStore  # noqa: E402
 from absencecritic.application.loop import run  # noqa: E402
 from absencecritic.envfile import load_repo_env  # noqa: E402
 
+if str(ROOT / "eval") not in sys.path:
+    sys.path.insert(0, str(ROOT / "eval"))
+from eval_arms import FIXTURE_NOTE, generic_arm  # noqa: E402
+
 ITEMS_PATH = Path(__file__).resolve().parent / "items.yaml"
 BENCH_FIXTURES = Path(__file__).resolve().parent / "fixtures.yaml"
 
@@ -57,6 +61,7 @@ def write_answers(items: list[dict], *, provider, store, out) -> list[dict]:
         draft = provider.generate(query=query)
         arms = (
             ("baseline", run(query, provider=provider, store=store, shield=False, draft=draft)),
+            ("generic", generic_arm(query, draft, generator=provider)),
             (
                 "critic_only",
                 run(query, provider=provider, store=store, retrieve_k=0, draft=draft),
@@ -100,12 +105,10 @@ def main(argv: list[str] | None = None) -> int:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open("w", encoding="utf-8") as handle:
         rows = write_answers(items, provider=provider, store=store, out=handle)
-    print(
-        json.dumps(
-            {"wrote": len(rows), "path": str(args.out), "skipped_unrecorded": skipped},
-            indent=2,
-        )
-    )
+    summary = {"wrote": len(rows), "path": str(args.out), "skipped_unrecorded": skipped}
+    if args.provider == "fixture":
+        summary["note"] = FIXTURE_NOTE
+    print(json.dumps(summary, indent=2))
     return 0
 
 
