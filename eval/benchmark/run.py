@@ -1,0 +1,83 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+
+"""Run baseline and shielded arms over eval/benchmark/items.yaml."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from absencecritic.adapters.llm.fixture import FixtureLLM  # noqa: E402
+from absencecritic.adapters.llm.openai_compat import OpenAICompat  # noqa: E402
+from absencecritic.adapters.store.yaml_store import YamlStore  # noqa: E402
+from absencecritic.application.loop import run  # noqa: E402
+from absencecritic.envfile import load_repo_env  # noqa: E402
+
+ITEMS_PATH = Path(__file__).resolve().parent / "items.yaml"
+BENCH_FIXTURES = Path(__file__).resolve().parent / "fixtures.yaml"
+
+
+def _load_items(path: Path) -> list[dict]:
+    return yaml.safe_load(path.read_text(encoding="utf-8"))["items"]
+
+
+def _provider(name: str):
+    if name == "fixture":
+        return FixtureLLM(BENCH_FIXTURES)
+    return OpenAICompat()
+
+
+def write_answers(items: list[dict], *, provider, store, out) -> list[dict]:
+    rows = []
+    for item in items:
+        query = item["query"]
+        baseline = run(query, provider=provider, store=store, shield=False)
+        shielded = run(query, provider=provider, store=store, shield=True)
+        for arm, result in (("baseline", baseline), ("shield", shielded)):
+            row = {
+                "id": item["id"],
+                "arm": arm,
+                "answer": result.final,
+            }
+            rows.append(row)
+            out.write(json.dumps(row, ensure_ascii=False) + "\n")
+            out.flush()
+    return rows
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Run AbsenceCritic over the survivorship benchmark items."
+    )
+    parser.add_argument("--provider", choices=("fixture", "openai"), default="fixture")
+    parser.add_argument("--items", type=Path, default=ITEMS_PATH)
+    parser.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        help="Answers JSONL for eval/benchmark/score.py --answers",
+    )
+    args = parser.parse_args(argv)
+    load_repo_env()
+    items = _load_items(args.items)
+    provider = _provider(args.provider)
+    store = YamlStore(ROOT / "data" / "non_survivors")
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    with args.out.open("w", encoding="utf-8") as handle:
+        rows = write_answers(items, provider=provider, store=store, out=handle)
+    print(json.dumps({"wrote": len(rows), "path": str(args.out)}, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

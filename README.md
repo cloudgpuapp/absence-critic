@@ -136,7 +136,8 @@ print(judged.critique)
 
 ```bash
 python eval/run_eval.py --provider fixture
-python eval/benchmark/score.py
+python eval/benchmark/run.py --provider fixture --out eval/benchmark/answers.jsonl
+python eval/benchmark/score.py --answers eval/benchmark/answers.jsonl
 python -m pytest
 ```
 
