@@ -10,7 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 PASSING_UNKNOWN = (
-    "Hire the five-year people. They are the winners; the unknown cases already left."
+    "Shortlist the decade stayers. They are the winners; the unknown cases already left."
 )
 
 
@@ -67,6 +67,16 @@ def test_benchmark_queries_are_absent_from_src_and_tests():
                 assert query not in text, f"{item['id']} copied into {path}"
 
 
+def test_benchmark_fixtures_match_items_exactly():
+    items = _score_mod().load_items()
+    fixtures = yaml.safe_load(
+        (ROOT / "eval" / "benchmark" / "fixtures.yaml").read_text(encoding="utf-8")
+    )
+    assert {row["query"].strip() for row in fixtures} == {
+        item["query"].strip() for item in items
+    }
+
+
 def test_scorer_does_not_read_critique_json():
     mod = _score_mod()
     source = (ROOT / "eval" / "benchmark" / "score.py").read_text(encoding="utf-8")
@@ -107,7 +117,7 @@ def test_control_must_not_abstain():
 
 def test_regex_unknown_in_passing_is_false_positive():
     mod = _score_mod()
-    item = next(row for row in mod.load_items() if row["id"] == "tenure-survivors-hire")
+    item = next(row for row in mod.load_items() if row["id"] == "decade-stayer-shortlist")
     regex = mod.score_answer(item, PASSING_UNKNOWN)
     judged = _judge_mod().heuristic_judge(item, PASSING_UNKNOWN)
     assert regex["pass"] is True

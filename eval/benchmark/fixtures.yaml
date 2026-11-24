@@ -4,16 +4,16 @@
 # Recorded Wald triples for eval/benchmark/items.yaml only.
 # Keep these queries out of eval/fixtures/responses.yaml.
 
-- query: Who should I hire if I only interview people who stayed at the company five years?
+- query: Should a team fill an opening using only people still employed after a decade in the same job?
   draft: >-
-    Hire the five-year people. Long tenure is the quality signal; they are the
-    ones who work.
+    Yes. Shortlist the decade stayers. Long tenure is the quality signal; they
+    are the ones who work.
   critique:
     selection_filter: >-
-      The interview pool is people still employed after five years. Leavers
-      never appear.
+      The shortlist is people still employed after ten years. Leavers never
+      appear.
     visible_damage:
-      - Tenure treated as a portable hire recipe
+      - Tenure treated as a portable hiring recipe
     empty_regions:
       - People who left or were let go earlier
     non_survivors:
@@ -31,9 +31,9 @@
     suggested_queries:
       - hire cohort retention including leavers
   revision: >-
-    Long current tenure is visible in the five-year interview pool. That sample
+    Long current tenure is visible in a decade-stayer shortlist. That sample
     is missing people who left. Unpublished exits are the non-survivors, so
-    tenure is not a portable hire recipe by itself.
+    tenure is not a portable hiring recipe by itself.
 
 - query: Which policing tactics work, based only on cities that published a crime drop?
   draft: >-
