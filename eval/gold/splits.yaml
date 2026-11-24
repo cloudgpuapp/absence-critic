@@ -1,0 +1,25 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Committed train/held-out query ids. Do not shuffle in CI.
+# Fixture eval 15/15 remains product regression. Training on these
+# rows and then citing 15/15 is leakage, not a Phase 2 result.
+
+train:
+  - startup-launch
+  - publish-fast
+  - nutrition-diet
+  - dropout-founders
+  - postmortems
+  - ml-tricks
+  - guaranteed-launch
+  - supplement
+  - linkedin-career
+  - boiling-point
+  - two-plus-two
+
+heldout:
+  - rare-disease
+  - fusion-works
+  - leaderboard
+  - wald-sentence
