@@ -1,0 +1,8 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Optional human refinements for training export (train.jsonl / heldout.jsonl).
+# Does not rewrite eval/fixtures/responses.yaml or critiques.jsonl.
+# Required per row: id (must exist in gold), editor, date, reason, critique.
+
+overlays: []
