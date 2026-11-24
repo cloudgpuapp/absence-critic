@@ -14,6 +14,7 @@
   non_survivor_evidence: U.S. Bureau of Labor Statistics Business Employment Dynamics data show that a large share of new establishments close within a few years (on the order of half by year five in long-run BED survival tables). Silent closures dominate documented successes.
   confidence: 0.85
   provenance: "U.S. Bureau of Labor Statistics, Business Employment Dynamics, establishment survival tables (https://www.bls.gov/bdm/)"
+  source_url: "https://www.bls.gov/bdm/"
 
 - id: cbinsights-postmortem-filter
   domain: startups
@@ -22,6 +23,7 @@
   non_survivor_evidence: Most failed ventures never publish a post-mortem. Aggregators such as CB Insights compile reasons from the visible shutdown subset, not from the full attempt distribution.
   confidence: 0.7
   provenance: "CB Insights, The Top Reasons Startups Fail (post-mortem compilation; selection is announced shutdowns with write-ups)"
+  source_url: "https://www.cbinsights.com/research/report/startup-failure-reasons-top/"
 
 - id: vc-portfolio-survivorship
   domain: startups
@@ -46,6 +48,7 @@
   non_survivor_evidence: Ioannidis (2005) argues that under realistic power, bias, and flexibility, a large fraction of published research findings are expected to be false. The file drawer is the missing plane.
   confidence: 0.8
   provenance: "John P. A. Ioannidis, Why Most Published Research Findings Are False, PLoS Medicine, 2005"
+  source_url: "https://doi.org/10.1371/journal.pmed.0020124"
 
 - id: franco-2014-file-drawer
   domain: scientific_literature
@@ -54,6 +57,7 @@
   non_survivor_evidence: "Franco, Malhotra, and Simonovits (2014) tracked social-science experiments from NSF-related programs and found strong publication bias: null results were much less likely to be published."
   confidence: 0.85
   provenance: "Franco, Malhotra, Simonovits, Publication bias in the social sciences, Science, 2014"
+  source_url: "https://doi.org/10.1126/science.1255484"
 
 - id: fanelli-2010-positive-results
   domain: scientific_literature
@@ -62,6 +66,7 @@
   non_survivor_evidence: Fanelli (2010) documented that the share of papers supporting the tested hypothesis is high and varies by discipline, consistent with selection rather than universal truth of hypotheses.
   confidence: 0.8
   provenance: "Daniele Fanelli, Positive Results Increase Down the Hierarchy of the Sciences, PLoS ONE, 2010"
+  source_url: "https://doi.org/10.1371/journal.pone.0010068"
 
 - id: osc-2015-reproducibility
   domain: scientific_literature
@@ -70,6 +75,7 @@
   non_survivor_evidence: The Open Science Collaboration (2015) reproduced 100 psychology findings and observed a substantial drop in significance and effect size relative to originals.
   confidence: 0.85
   provenance: "Open Science Collaboration, Estimating the reproducibility of psychological science, Science, 2015"
+  source_url: "https://doi.org/10.1126/science.aac4716"
 
 - id: hopewell-trial-publication-bias
   domain: medical
@@ -78,6 +84,7 @@
   non_survivor_evidence: Cochrane methodology reviews (e.g. Hopewell et al.) find that published trials over-represent beneficial effects compared with all registered or completed trials.
   confidence: 0.8
   provenance: "Hopewell, Loudon, Clarke, Oxman, Dickersin, Publication bias in clinical trials due to statistical significance or direction of trial results, Cochrane Database of Systematic Reviews, 2009"
+  source_url: "https://doi.org/10.1002/14651858.MR000006.pub3"
 
 - id: faers-underreporting
   domain: medical
@@ -86,6 +93,7 @@
   non_survivor_evidence: FDA FAERS documentation states reports do not establish rates; under-reporting is expected. Absence of a report is not evidence of safety.
   confidence: 0.8
   provenance: "U.S. FDA, FAERS data limitations (https://www.fda.gov/drugs/surveillance/questions-and-answers-fdas-adverse-event-reporting-system-faers)"
+  source_url: "https://www.fda.gov/drugs/surveillance/questions-and-answers-fdas-adverse-event-reporting-system-faers"
 
 - id: rare-disease-evidence-gap
   domain: medical
@@ -94,6 +102,7 @@
   non_survivor_evidence: The Orphanet database lists thousands of rare diseases, the bulk of them affecting very few people, so trials and guidelines exist for only a small share of them. Rare-disease evidence is often case series, and patients may never enter a registry. Empty regions are missing patients, not proven benignity.
   confidence: 0.65
   provenance: "Nguengang Wakap et al., Estimating cumulative point prevalence of rare diseases: analysis of the Orphanet database, European Journal of Human Genetics, 2020"
+  source_url: "https://doi.org/10.1038/s41431-019-0508-0"
 
 - id: nutrition-publication-bias
   domain: medical
@@ -102,6 +111,7 @@
   non_survivor_evidence: Observational nutrition findings are sensitive to residual confounding and selective reporting; null diet studies are less visible. Ioannidis has separately criticized reliability of much nutritional epidemiology.
   confidence: 0.7
   provenance: "Ioannidis, The Challenge of Reforming Nutritional Epidemiologic Research, JAMA, 2018; plus general file-drawer pattern from Franco et al. 2014"
+  source_url: "https://doi.org/10.1001/jama.2018.11025"
 
 - id: linkedin-success-narratives
   domain: everyday_reasoning
@@ -143,6 +153,7 @@
   non_survivor_evidence: Failed ablations and negative results are rarely published. Melis et al. found that a carefully tuned older architecture matched or beat newer language-model architectures, so reported gains partly reflected unequal tuning. Apparent universal tricks often fail off the reported setup.
   confidence: 0.7
   provenance: "Melis, Dyer, Blunsom, On the State of the Art of Evaluation in Neural Language Models, ICLR 2018; Lipton and Steinhardt, Troubling Trends in Machine Learning Scholarship, 2018"
+  source_url: "https://arxiv.org/abs/1707.05589"
 
 - id: leaderboard-overfitting
   domain: model_evaluation
@@ -151,6 +162,7 @@
   non_survivor_evidence: Repeated test-set access and selection of lucky seeds produce inflated numbers. Held-out or shifted distributions are the missing planes.
   confidence: 0.75
   provenance: "Recht et al., Do ImageNet classifiers generalize to ImageNet?, ICML 2019; Dwork et al. on adaptive overfitting of holdout sets"
+  source_url: "https://arxiv.org/abs/1902.10811"
 
 - id: demo-production-gap
   domain: model_evaluation
@@ -167,6 +179,7 @@
   non_survivor_evidence: Tasks that are boring, private, or professionally specialized are under-sampled. Arena winners can still fail on the silent tail.
   confidence: 0.6
   provenance: "Chiang et al., Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference, ICML 2024 (crowdsourced, user-chosen prompts); the under-sampled tail is the curator's reading"
+  source_url: "https://arxiv.org/abs/2403.04132"
 
 - id: github-star-survivorship
   domain: model_evaluation
@@ -183,6 +196,7 @@
   non_survivor_evidence: Several high-profile effects shrank or vanished under replication; advice that cites only the original hit is survivor-conditioned.
   confidence: 0.8
   provenance: "Open Science Collaboration, Science, 2015; Klein et al., Many Labs 2: Investigating Variation in Replicability Across Samples and Settings, Advances in Methods and Practices in Psychological Science, 2018"
+  source_url: "https://doi.org/10.1177/2515245918810225"
 
 - id: current-employee-tenure-filter
   domain: hiring
@@ -200,6 +214,7 @@
   non_survivor_evidence: A systematic review of under-reporting studies found that spontaneous systems capture only a small minority of adverse drug reactions. Unlisted harms may be unreported, not absent.
   confidence: 0.75
   provenance: "Hazell and Shakir, Under-reporting of adverse drug reactions: a systematic review, Drug Safety, 2006"
+  source_url: "https://doi.org/10.2165/00002018-200629050-00003"
 
 - id: fusion-announcement-filter
   domain: scientific_literature
