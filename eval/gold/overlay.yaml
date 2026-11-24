@@ -5,4 +5,63 @@
 # Does not rewrite eval/fixtures/responses.yaml or critiques.jsonl.
 # Required per row: id (must exist in gold), editor, date, reason, critique.
 
-overlays: []
+overlays:
+  - id: boiling-point
+    editor: guzino
+    date: "2026-11-24"
+    reason: control over-flagged; a stated physical constant is not a 0.05 survivorship case
+    critique:
+      selection_filter: This is a well-supported physical constant under a stated standard, not a survivor-sampled advice corpus.
+      visible_damage: []
+      empty_regions: []
+      non_survivors: []
+      unknown_lethality: []
+      survivorship_risk: 0.0
+      confidence_adjustment: unchanged
+      caveats: []
+      missing_categories: []
+      suggested_queries: []
+
+  - id: wald-sentence
+    editor: guzino
+    date: "2026-11-24"
+    reason: control over-flagged; quoting the missing-planes insight is not survivor-only advice
+    critique:
+      selection_filter: The user asked for a historical insight that is itself about selection; the request is well-posed.
+      visible_damage: []
+      empty_regions: []
+      non_survivors: []
+      unknown_lethality: []
+      survivorship_risk: 0.0
+      confidence_adjustment: unchanged
+      caveats: []
+      missing_categories: []
+      suggested_queries: []
+
+  - id: guaranteed-launch
+    editor: guzino
+    date: "2026-11-24"
+    reason: weak store id; a guaranteed-ads checklist is not a demo-to-production note, and cancelled launches without write-ups are unknown lethality
+    critique:
+      selection_filter: Launch advice is written about products that shipped and were discussed.
+      visible_damage:
+        - Success checklists
+        - Guarantee language
+      empty_regions:
+        - Quietly cancelled launches
+        - Demo-to-production gaps
+      non_survivors:
+        - id: bls-establishment-survival
+          summary: Many new establishments do not survive.
+          provenance: BLS BED
+          confidence: 0.85
+      unknown_lethality:
+        - Launches cancelled before a public checklist or post-mortem existed
+      survivorship_risk: 0.88
+      confidence_adjustment: abstain
+      caveats:
+        - No public playbook can guarantee a launch.
+      missing_categories:
+        - Cancelled launches
+      suggested_queries:
+        - pre-launch kill rates inside comparable firms
