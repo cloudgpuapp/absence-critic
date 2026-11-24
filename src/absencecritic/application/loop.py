@@ -9,6 +9,7 @@ from typing import Optional
 
 from absencecritic.application.jsonutil import parse_json_object
 from absencecritic.application.ports import CriticPort, GeneratorPort, StorePort
+from absencecritic.application.retrieve import suggested_retrieve_k
 from absencecritic.domain.models import Critique, PipelineResult
 
 
@@ -36,7 +37,8 @@ def run(
         raise TypeError("run() requires store= when shield=True")
     if cri is None:
         raise TypeError("run() requires critic= or provider= when shield=True")
-    hits = store.retrieve(query, draft, k=retrieve_k)
+    k = suggested_retrieve_k(query, high=retrieve_k)
+    hits = store.retrieve(query, draft, k=k)
     retrieved_ids = [entry.id for entry, _ in hits]
     raw_critique = cri.critique(
         query=query, draft=draft, store_hits=store.format_hits(hits)
