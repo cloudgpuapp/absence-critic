@@ -18,6 +18,9 @@ def test_survivor_advice_fetches_high():
         "How should I plan a product launch that is guaranteed to succeed?"
     ) == 5
     assert suggested_retrieve_k("What career advice actually works based on LinkedIn stories?") == 5
+    assert suggested_retrieve_k(
+        "Who should I hire if I only interview people who stayed at the company five years?"
+    ) == 5
 
 
 def test_unknown_query_fetches_one():

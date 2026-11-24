@@ -21,7 +21,12 @@ _HIGH_CUES = (
     "leaderboard",
     "linkedin",
     "career",
+    "employee",
     "guaranteed",
+    "hire",
+    "hiring",
+    "interview",
+    "tenure",
     "literature",
     "accuracy",
 )

@@ -181,6 +181,15 @@
   confidence: 0.8
   provenance: "Open Science Collaboration, Science, 2015; Many Labs projects"
 
+- id: current-employee-tenure-filter
+  domain: hiring
+  selection_process: Hiring advice that samples only people still in role after many years conditions on stayers. Those who left or were let go earlier are not in the interview pool.
+  survivor_pattern: Long current tenure treated as a portable quality signal for whom to hire.
+  non_survivor_evidence: Official tenure tables describe people still employed, not a hire cohort including leavers. Job-matching theory treats early exits as information about match quality that the stayer sample cannot show.
+  confidence: 0.75
+  provenance: "U.S. Bureau of Labor Statistics, Employee Tenure Summary; Boyan Jovanovic, Job Matching and the Theory of Turnover, Journal of Political Economy, 1979"
+  source_url: "https://www.bls.gov/news.release/tenure.nr0.htm"
+
 - id: who-pharmacovigilance-underreporting
   domain: medical
   selection_process: Global pharmacovigilance depends on voluntary reporting through national centres.
