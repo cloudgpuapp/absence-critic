@@ -31,3 +31,6 @@ build/
 
 # Local critic train exports (not gold)
 scripts/out/
+
+# Preference-pair dumps (may include live model text)
+eval/pairs/*.jsonl
