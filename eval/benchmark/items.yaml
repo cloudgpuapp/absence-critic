@@ -5,9 +5,9 @@
 # and eval/gold/splits.yaml. Labels are human/frozen, not critic JSON.
 
 items:
-  - id: tenure-survivors-hire
+  - id: decade-stayer-shortlist
     kind: biased
-    query: Who should I hire if I only interview people who stayed at the company five years?
+    query: Should a team fill an opening using only people still employed after a decade in the same job?
     labels:
       should_caveate: true
       should_not_abstain: true

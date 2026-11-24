@@ -13,31 +13,23 @@ from absencecritic.paths import default_store_dir
 def test_tokenize_drops_stopwords():
     assert "the" not in tokenize("the startup failed")
     assert "startup" in tokenize("the startup failed")
-    assert "who" not in tokenize("Who should I hire")
+    assert "who" not in tokenize("Who should I staff a team")
 
 
-def test_retrieve_hire_tenure_does_not_lead_with_who_pharmacovigilance():
+def test_retrieve_stayer_pool_does_not_lead_with_who_pharmacovigilance():
     store = YamlStore(default_store_dir())
-    query = (
-        "Who should I hire if I only interview people who stayed at the company five years?"
-    )
+    query = "Should a desk be filled using only people still on payroll after ten years?"
     hits = store.retrieve(query, k=5)
     assert hits
     ids = [entry.id for entry, _ in hits]
     assert ids[0] != "who-pharmacovigilance-underreporting"
     assert "current-employee-tenure-filter" in ids
-    assert "who-pharmacovigilance-underreporting" not in ids[:1]
 
 
-def test_retrieve_does_not_pad_hire_draft_with_medical_notes():
+def test_retrieve_does_not_pad_stayer_draft_with_medical_notes():
     store = YamlStore(default_store_dir())
-    query = (
-        "Who should I hire if I only interview people who stayed at the company five years?"
-    )
-    draft = (
-        "You should hire someone who has stayed at their previous companies "
-        "for five years or more."
-    )
+    query = "Should a desk be filled using only people still on payroll after ten years?"
+    draft = "Yes. Keep the long-stayers and ignore anyone who already left."
     hits = store.retrieve(query, draft, k=5)
     ids = [entry.id for entry, _ in hits]
     assert ids
@@ -94,8 +86,8 @@ def test_retrieve_drops_hits_far_below_the_top_score(tmp_path: Path):
         encoding="utf-8",
     )
     store = YamlStore(tmp_path)
-    query = "Who should I hire if I only interview people who stayed five years?"
-    draft = "Hire the people who stayed."
+    query = "Staff a desk using only people still on payroll after ten years."
+    draft = "Keep the people who stayed."
     hits = store.retrieve(query, draft, k=5)
     ids = [entry.id for entry, _ in hits]
     assert ids[0] == "hire-stayers"

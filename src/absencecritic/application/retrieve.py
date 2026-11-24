@@ -5,43 +5,36 @@
 
 from __future__ import annotations
 
-_HIGH_CUES = (
-    "startup",
-    "founder",
-    "publish",
-    "diet",
-    "nutrition",
-    "disease",
-    "post-mortem",
-    "postmortem",
-    "tricks",
-    "launch",
-    "supplement",
-    "fusion",
-    "leaderboard",
-    "linkedin",
-    "career",
-    "employee",
-    "guaranteed",
-    "hire",
-    "hiring",
-    "interview",
-    "tenure",
-    "literature",
-    "accuracy",
+import re
+
+# Process language: advice or a visible-sample filter. Not eval topic words
+# (startup, fusion, leaderboard, hire, ...).
+_ADVICE = re.compile(
+    r"\b(should|works?|always|best|guaranteed|advice|recommend|"
+    r"playbook|tips)\b",
+    re.I,
 )
+_SELECTION = re.compile(
+    r"\b(only|published|famous|successful|stories|literature|"
+    r"ranking|lessons|score)\b|based on|post-?mortems?",
+    re.I,
+)
+_ARITH = re.compile(r"\d+\s*[+\-×x*/÷]\s*\d+")
+_FACTOID = re.compile(
+    r"boiling point|chemical formula|\bformula for\b|how many degrees",
+    re.I,
+)
+_META = re.compile(r"\b(quote|define|insight)\b", re.I)
+_METHOD = re.compile(r"\b(wald|survivorship|survivorship-bias)\b", re.I)
 
 
 def suggested_retrieve_k(query: str, *, high: int = 5) -> int:
     """Return 0 for arithmetic/definitional controls, high for survivor-advice cues, else 1."""
-    q = query.lower()
-    compact = q.replace(" ", "")
-    if "2+2" in compact:
+    q = query.strip()
+    if _ARITH.search(q) or _FACTOID.search(q):
         return 0
-    if "boiling point" in q:
+    if _META.search(q) and _METHOD.search(q):
         return 0
-    if "wald" in q and any(word in q for word in ("quote", "define", "insight")):
-        return 0
-    if any(cue in q for cue in _HIGH_CUES):
+    if _ADVICE.search(q) or _SELECTION.search(q):
         return high
     return 1
