@@ -68,6 +68,40 @@ def test_cli_ingest_catalog(tmp_path, capsys):
     assert (store_dir / "ingested.yaml").exists()
 
 
+def test_cli_local_critic_json(monkeypatch, capsys):
+    from absencecritic.adapters.llm.openai_compat import OpenAICompat
+
+    payload = json.dumps(
+        {
+            "selection_filter": "Arithmetic identity; not filtered by publication or platform survival.",
+            "visible_damage": [],
+            "empty_regions": [],
+            "non_survivors": [],
+            "unknown_lethality": [],
+            "survivorship_risk": 0.0,
+            "confidence_adjustment": "unchanged",
+            "caveats": [],
+            "missing_categories": [],
+            "suggested_queries": [],
+        }
+    )
+    monkeypatch.setattr(OpenAICompat, "_chat", lambda *a, **k: payload)
+    code = main(
+        [
+            "--provider",
+            "fixture",
+            "--critic",
+            "local",
+            "--json",
+            "What is 2+2?",
+        ]
+    )
+    assert code == 0
+    body = json.loads(capsys.readouterr().out)
+    assert body["critique"]["confidence_adjustment"] == "unchanged"
+    assert body["draft"]
+
+
 def test_cli_no_shield(capsys):
     code = main(["--provider", "fixture", "--no-shield", "--json", "What is 2+2?"])
     assert code == 0

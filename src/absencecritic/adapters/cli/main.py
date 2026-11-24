@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 from absencecritic.adapters.llm.fixture import FixtureLLM
+from absencecritic.adapters.llm.local import LocalCritic
 from absencecritic.adapters.llm.openai_compat import OpenAICompat
 from absencecritic.adapters.store.catalog import ingest_catalog
 from absencecritic.adapters.store.feedback import accept_feedback, queue_feedback
@@ -26,6 +27,14 @@ def _llm(name: str):
     if name == "openai":
         return OpenAICompat()
     raise ValueError(f"Unknown provider: {name}")
+
+
+def _critic(name: str, generator):
+    if name == "prompt":
+        return generator
+    if name == "local":
+        return LocalCritic()
+    raise ValueError(f"Unknown critic: {name}")
 
 
 def _default_provider_name() -> str:
@@ -131,6 +140,12 @@ def main(argv: list[str] | None = None) -> int:
         help="LLM backend (default: fixture unless OPENAI_API_KEY is set)",
     )
     parser.add_argument(
+        "--critic",
+        choices=("prompt", "local"),
+        default="prompt",
+        help="Critic backend (default: same prompted model as --provider)",
+    )
+    parser.add_argument(
         "--store",
         type=Path,
         default=default_store_dir(),
@@ -139,9 +154,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     store = YamlStore(args.store)
+    generator = _llm(args.provider)
     result = run(
         args.query,
-        provider=_llm(args.provider),
+        generator=generator,
+        critic=_critic(args.critic, generator),
         store=store,
         shield=not args.no_shield,
     )

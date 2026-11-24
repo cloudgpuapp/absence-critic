@@ -77,6 +77,7 @@ Private store files go in another directory (`--store` or `ABSENCECRITIC_STORE`)
 ```bash
 absencecritic --provider fixture "What is 2+2?"
 absencecritic --provider openai "What works for launching a startup?"
+absencecritic --provider fixture --critic local "What works for launching a startup?"
 ```
 
 Live OpenAI-compatible calls (OpenAI, OpenRouter, or a local server):
