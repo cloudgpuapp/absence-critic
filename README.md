@@ -54,6 +54,14 @@ absencecritic --no-shield "What works for launching a startup?"
 absencecritic --show-critique --json "What works for launching a startup?"
 ```
 
+Curated store ingest (Phase 1; does not change the Wald loop):
+
+```bash
+absencecritic ingest path/to/entries.yaml
+```
+
+Valid entries are appended to `ingested.yaml` under the store directory. Duplicate `id` values are rejected. The generator still never reads the store.
+
 `--provider` is `fixture` unless `OPENAI_API_KEY` is set (then the default is `openai`). Force either:
 
 ```bash

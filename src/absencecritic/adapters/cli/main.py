@@ -11,6 +11,7 @@ from pathlib import Path
 
 from absencecritic.adapters.llm.fixture import FixtureLLM
 from absencecritic.adapters.llm.openai_compat import OpenAICompat
+from absencecritic.adapters.store.ingest import ingest_yaml
 from absencecritic.adapters.store.yaml_store import YamlStore
 from absencecritic.application.loop import run
 from absencecritic.envfile import load_repo_env
@@ -31,8 +32,30 @@ def _default_provider_name() -> str:
     return "fixture"
 
 
+def _ingest_cmd(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="absencecritic ingest",
+        description="Validate and append curated Non-Survivor Store YAML.",
+    )
+    parser.add_argument("file", type=Path, help="YAML file of StoreEntry records")
+    parser.add_argument(
+        "--store",
+        type=Path,
+        default=default_store_dir(),
+        help="Directory of Non-Survivor Store YAML/JSONL files",
+    )
+    args = parser.parse_args(argv)
+    ids = ingest_yaml(args.store, args.file)
+    for entry_id in ids:
+        print(entry_id)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     load_repo_env()
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "ingest":
+        return _ingest_cmd(argv[1:])
     parser = argparse.ArgumentParser(
         prog="absencecritic",
         description="Run the AbsenceCritic Wald loop: draft → critic → revise.",

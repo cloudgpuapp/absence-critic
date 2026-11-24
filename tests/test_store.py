@@ -3,7 +3,10 @@
 
 from pathlib import Path
 
+import pytest
+
 from absencecritic.adapters.store.yaml_store import YamlStore, tokenize
+from absencecritic.domain.models import StoreEntry
 from absencecritic.paths import default_store_dir
 
 
@@ -43,3 +46,51 @@ def test_seeded_store_loads():
     assert len(store.entries) >= 20
     ids = {e.id for e in store.entries}
     assert "bls-establishment-survival" in ids
+
+
+def test_add_appends_ingested_yaml_and_ranks(tmp_path: Path):
+    store = YamlStore(tmp_path)
+    entry = StoreEntry(
+        id="startup-silent-shutdown",
+        domain="startups",
+        selection_process="public advice is written by firms that lasted",
+        survivor_pattern="visible launch playbooks",
+        non_survivor_evidence="cohorts that close without a post-mortem are missing from blogs",
+        confidence=0.7,
+        provenance="Author prior, low confidence",
+    )
+    store.add(entry)
+    assert (tmp_path / "ingested.yaml").exists()
+    reloaded = YamlStore(tmp_path)
+    assert any(e.id == "startup-silent-shutdown" for e in reloaded.entries)
+    hits = reloaded.retrieve("What works for launching a startup?")
+    assert hits
+    assert hits[0][0].id == "startup-silent-shutdown"
+
+
+def test_add_rejects_duplicate_id(tmp_path: Path):
+    (tmp_path / "seed.yaml").write_text(
+        """
+- id: already
+  domain: startups
+  selection_process: filter
+  survivor_pattern: survivors
+  non_survivor_evidence: missing attempts
+  confidence: 0.5
+  provenance: test
+""",
+        encoding="utf-8",
+    )
+    store = YamlStore(tmp_path)
+    with pytest.raises(ValueError, match="duplicate store id"):
+        store.add(
+            StoreEntry(
+                id="already",
+                domain="startups",
+                selection_process="filter",
+                survivor_pattern="survivors",
+                non_survivor_evidence="missing attempts",
+                confidence=0.5,
+                provenance="test",
+            )
+        )
