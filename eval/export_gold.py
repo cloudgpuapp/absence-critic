@@ -24,8 +24,10 @@ GOLD_PATH = GOLD_DIR / "critiques.jsonl"
 TRAIN_PATH = GOLD_DIR / "train.jsonl"
 HELDOUT_PATH = GOLD_DIR / "heldout.jsonl"
 SPLITS_PATH = GOLD_DIR / "splits.yaml"
+OVERLAY_PATH = GOLD_DIR / "overlay.yaml"
 QUERIES_PATH = ROOT / "eval" / "queries.yaml"
 PROVENANCE = "eval/fixtures/responses.yaml"
+OVERLAY_FIELDS = ("id", "editor", "date", "reason", "critique")
 
 
 def _query_index() -> dict[str, dict[str, str]]:
@@ -47,6 +49,56 @@ def load_splits(path: Path | None = None) -> tuple[list[str], list[str]]:
     if not train or not heldout:
         raise ValueError("train and heldout lists must both be non-empty")
     return train, heldout
+
+
+def load_overlays(path: Path | None = None) -> dict[str, dict]:
+    overlay_path = path or OVERLAY_PATH
+    if not overlay_path.is_file():
+        return {}
+    raw = yaml.safe_load(overlay_path.read_text(encoding="utf-8")) or {}
+    rows = raw.get("overlays", raw if isinstance(raw, list) else [])
+    if not rows:
+        return {}
+    by_id: dict[str, dict] = {}
+    for item in rows:
+        if not isinstance(item, dict):
+            raise ValueError("overlay row must be a mapping")
+        missing = [name for name in OVERLAY_FIELDS if not item.get(name)]
+        if missing:
+            raise ValueError(f"overlay row missing {missing}")
+        qid = str(item["id"])
+        if qid in by_id:
+            raise ValueError(f"duplicate overlay id: {qid}")
+        critique = Critique.model_validate(item["critique"])
+        by_id[qid] = {
+            "id": qid,
+            "editor": str(item["editor"]),
+            "date": str(item["date"]),
+            "reason": str(item["reason"]),
+            "critique": critique.model_dump(mode="json"),
+        }
+    return by_id
+
+
+def apply_overlay(records: list[dict], overlays: dict[str, dict]) -> list[dict]:
+    gold_ids = {row["id"] for row in records}
+    unknown = sorted(set(overlays) - gold_ids)
+    if unknown:
+        raise ValueError(f"overlay ids not in gold: {unknown}")
+    applied: list[dict] = []
+    for row in records:
+        overlay = overlays.get(row["id"])
+        if overlay is None:
+            applied.append(row)
+            continue
+        updated = dict(row)
+        updated["critique"] = overlay["critique"]
+        updated["critique_source"] = "overlay"
+        updated["overlay_editor"] = overlay["editor"]
+        updated["overlay_date"] = overlay["date"]
+        updated["overlay_reason"] = overlay["reason"]
+        applied.append(updated)
+    return applied
 
 
 def _dump_jsonl(path: Path, rows: list[dict]) -> None:
@@ -102,9 +154,12 @@ def _partition(records: list[dict]) -> tuple[list[dict], list[dict]]:
     return train, heldout
 
 
-def write_gold(dest: Path | None = None) -> Path:
+def write_gold(
+    dest: Path | None = None, *, overlay_path: Path | None = None
+) -> Path:
     records = gold_records()
-    train, heldout = _partition(records)
+    overlaid = apply_overlay(records, load_overlays(overlay_path))
+    train, heldout = _partition(overlaid)
     out = dest or GOLD_PATH
     _dump_jsonl(out, records)
     _dump_jsonl(out.parent / TRAIN_PATH.name, train)

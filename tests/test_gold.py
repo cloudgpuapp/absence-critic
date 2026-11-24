@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -49,6 +50,90 @@ def test_train_and_heldout_are_disjoint_and_cover_gold():
     heldout_kinds = {row["kind"] for row in heldout_rows}
     assert "biased" in heldout_kinds
     assert "control" in heldout_kinds
+
+
+def _control_critique() -> dict:
+    return {
+        "selection_filter": "Arithmetic identity; not filtered by publication or platform survival.",
+        "visible_damage": [],
+        "empty_regions": [],
+        "non_survivors": [],
+        "unknown_lethality": [],
+        "survivorship_risk": 0.0,
+        "confidence_adjustment": "unchanged",
+        "caveats": ["Human overlay test only."],
+        "missing_categories": [],
+        "suggested_queries": [],
+    }
+
+
+def test_overlay_unknown_id_fails():
+    mod = _export_mod()
+    rows = mod.gold_records()
+    with pytest.raises(ValueError, match="not in gold"):
+        mod.apply_overlay(rows, {"not-a-query": {"critique": _control_critique()}})
+
+
+def test_overlay_missing_provenance_fails(tmp_path: Path):
+    mod = _export_mod()
+    bad = tmp_path / "overlay.yaml"
+    bad.write_text(
+        yaml.safe_dump(
+            {
+                "overlays": [
+                    {
+                        "id": "two-plus-two",
+                        "editor": "tester",
+                        "date": "2026-11-24",
+                        "critique": _control_critique(),
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="missing"):
+        mod.load_overlays(bad)
+
+
+def test_overlay_wins_on_train_export_not_fixture_jsonl(tmp_path: Path):
+    mod = _export_mod()
+    overlay = tmp_path / "overlay.yaml"
+    overlay.write_text(
+        yaml.safe_dump(
+            {
+                "overlays": [
+                    {
+                        "id": "two-plus-two",
+                        "editor": "tester",
+                        "date": "2026-11-24",
+                        "reason": "control over-flagged",
+                        "critique": _control_critique(),
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    dest = tmp_path / "out" / "critiques.jsonl"
+    mod.write_gold(dest, overlay_path=overlay)
+    union = [
+        json.loads(line)
+        for line in dest.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    train = [
+        json.loads(line)
+        for line in (dest.parent / "train.jsonl").read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    fixture_row = next(row for row in union if row["id"] == "two-plus-two")
+    train_row = next(row for row in train if row["id"] == "two-plus-two")
+    assert fixture_row["critique"]["caveats"] == []
+    assert "overlay_editor" not in fixture_row
+    assert train_row["critique"]["caveats"] == ["Human overlay test only."]
+    assert train_row["overlay_editor"] == "tester"
+    assert train_row["overlay_reason"] == "control over-flagged"
 
 
 def test_overlapping_splits_fail(tmp_path: Path):
