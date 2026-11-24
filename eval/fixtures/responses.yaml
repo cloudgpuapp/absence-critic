@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Recorded draft / critique / revision triples. Tests and eval use these
-# so CI needs no API keys. To regenerate with a live provider, run each
-# query with `--provider openai --json` and replace the matching block.
+# so CI needs no API keys. To regenerate with a live provider:
+#   python eval/record_fixtures.py --provider openai --out eval/fixtures/responses.yaml
 
 - query: What works for launching a startup?
   draft: >-
