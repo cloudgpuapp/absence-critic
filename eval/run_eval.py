@@ -32,8 +32,9 @@ from absencecritic.application.loop import run  # noqa: E402
 from absencecritic.envfile import load_repo_env  # noqa: E402
 
 MISSING_RE = re.compile(
-    r"surviv|missing|unpublished|base rate|file drawer|unknown|caveat|"
-    r"did not return|non-survivor|selection|under-report|failure rate",
+    r"surviv|missing|unpublished|base[- ]rate|file drawer|unknown|caveat|"
+    r"did not return|non-survivor|selection|under-report|failure rate|"
+    r"without data|cannot reveal|visible sample",
     re.I,
 )
 
