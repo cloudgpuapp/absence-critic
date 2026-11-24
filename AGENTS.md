@@ -21,6 +21,7 @@ Ports-and-adapters around a linear Wald loop. Not LangGraph. Not a single mega-p
 | Adapters | `src/absencecritic/adapters/` | domain, application.ports, prompts, I/O | other adapters' internals, collapsing stages |
 | Eval | `eval/` | public facade / adapters | rewriting domain models |
 | Origin docs | `docs/` | - | edits unless the user asked |
+| Working plans | `plans/` | - | do not copy into origin `docs/` |
 
 Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult`.
 
@@ -33,6 +34,7 @@ Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult
 - New LLM backend -> `adapters/llm/` implementing `GeneratorPort` and `CriticPort`; do not edit `WaldLoop` unless the port itself changes
 - New store backend -> `adapters/store/` implementing `StorePort`
 - Eval queries/fixtures -> `eval/`
+- Phase working plans (not origin) -> `plans/`
 
 ## Forbidden
 
