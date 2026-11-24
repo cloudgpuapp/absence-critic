@@ -1,0 +1,15 @@
+---
+description: Pull-request workflow; do not land work on main
+alwaysApply: true
+---
+
+# Pull requests
+
+Policy lives in AGENTS.md. Skills: `.cursor/skills/open-pull-request/` and `review-pull-request/`.
+
+- Feature work goes on a branch and a GitHub PR against `main`. Do not push features to `main`.
+- One concern per PR. Do not commit `.env` or keys.
+- Before opening: architecture-guard, pytest, fixture eval.
+- Reviews: architecture and SOLID first, then tests, then nits. Block Wald-invariant breaks.
+- Do not merge, force-push `main`, or skip hooks unless the user asked.
+- Origin `docs/` stay frozen unless the PR is explicitly about them.

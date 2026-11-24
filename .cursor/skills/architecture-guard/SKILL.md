@@ -16,6 +16,7 @@ Read [AGENTS.md](../../../AGENTS.md) (canonical for every tool). Then inspect th
 5. No new LangChain/LangGraph/DSPy dependency.
 6. New code sits in the matching layer (see AGENTS.md table).
 7. SPDX header present on new source files.
+8. SOLID mapping in AGENTS.md: no collapsed stages, no loop edit for a new vendor, ports stay segregated.
 
 ## Report
 

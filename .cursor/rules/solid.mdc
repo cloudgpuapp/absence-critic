@@ -1,0 +1,16 @@
+---
+description: SOLID mapped to AbsenceCritic layers and ports
+alwaysApply: true
+---
+
+# SOLID
+
+Canonical mapping is in AGENTS.md. Do not invent a second object model.
+
+- **S** — One layer, one Wald stage. CLI is not the loop. Prompts are not orchestration.
+- **O** — New provider or store = new adapter. Do not edit `WaldLoop` unless the port changes.
+- **L** — Fixture and live adapters substitute. Critique is still `Critique` JSON; generate still has no store.
+- **I** — `GeneratorPort`, `CriticPort`, `StorePort` stay separate. No mega-port.
+- **D** — Application depends on ports; adapters depend inward.
+
+A collapsed draft+critic prompt or HTTP inside `domain/` fails SOLID and architecture together.
