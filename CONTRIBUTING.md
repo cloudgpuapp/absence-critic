@@ -10,9 +10,9 @@ AbsenceCritic is Apache-2.0. Origin and architecture: [Guzino](https://github.co
 ## Humans
 
 1. Read [`docs/00-README.md`](docs/00-README.md) for the design, then [`AGENTS.md`](AGENTS.md) for the code layout.
-2. One-command local stack: `python scripts/setup_dev.py` (Ollama + `qwen2.5:3b` + `.env`). Live checks: `python eval/run_eval.py --provider ollama`.
-3. Keep the Wald invariant: the generator never reads the Non-Survivor Store.
-4. Run `python -m pytest` and `python eval/run_eval.py --provider fixture` before a PR. GitHub Actions runs the same pair (fixture provider only; no API keys, no Ollama) on `main` and every pull request.
+2. Keep the Wald invariant: the generator never reads the Non-Survivor Store.
+3. Run `python -m pytest` and `python eval/run_eval.py --provider fixture` before a PR. GitHub Actions runs the same pair (fixture provider only; no API keys) on `main` and every pull request.
+4. Live eval uses `OPENAI_API_KEY` (copy [`.env.example`](.env.example) to `.env`). Example: `python eval/run_eval.py --provider openai`.
 5. SPDX header on new source files: `Copyright 2026 Guzino (https://github.com/guzino)` / `Apache-2.0`.
 
 ## Coding agents

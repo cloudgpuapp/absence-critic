@@ -22,18 +22,10 @@ def _llm(name: str):
         return FixtureLLM(default_fixture_path())
     if name == "openai":
         return OpenAICompat()
-    if name == "ollama":
-        return OpenAICompat.ollama()
     raise ValueError(f"Unknown provider: {name}")
 
 
 def _default_provider_name() -> str:
-    named = os.environ.get("ABSENCECRITIC_PROVIDER")
-    if named in {"fixture", "openai", "ollama"}:
-        return named
-    base = (os.environ.get("OPENAI_BASE_URL") or "").lower()
-    if "11434" in base:
-        return "ollama"
     if os.environ.get("OPENAI_API_KEY"):
         return "openai"
     return "fixture"
@@ -64,9 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--provider",
-        choices=("fixture", "openai", "ollama"),
+        choices=("fixture", "openai"),
         default=_default_provider_name(),
-        help="LLM backend (default: fixture; ollama if .env from setup)",
+        help="LLM backend (default: fixture unless OPENAI_API_KEY is set)",
     )
     parser.add_argument(
         "--store",

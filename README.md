@@ -46,23 +46,6 @@ Agent conventions (tool-agnostic): [`AGENTS.md`](AGENTS.md). Claude Code: [`CLAU
 python -m pip install -e ".[dev]"
 ```
 
-### Local Ollama (one command)
-
-Dev and new contributors use a local model. From the repo root:
-
-```bash
-python scripts/setup_dev.py
-```
-
-That installs the package, installs Ollama if needed, pulls `qwen2.5:3b`, and writes a gitignored `.env`. Then:
-
-```bash
-absencecritic --provider ollama "What works for launching a startup?"
-python eval/run_eval.py --provider ollama
-```
-
-If Ollama is already installed: `absencecritic-setup` (or `python -m absencecritic.adapters.cli.setup_ollama`). Override the model with `ABSENCECRITIC_OLLAMA_MODEL`. CI never uses Ollama.
-
 ### CLI
 
 ```bash
@@ -71,11 +54,10 @@ absencecritic --no-shield "What works for launching a startup?"
 absencecritic --show-critique --json "What works for launching a startup?"
 ```
 
-`--provider` is `fixture` unless `.env` sets `ABSENCECRITIC_PROVIDER=ollama` (after setup) or `OPENAI_API_KEY` is set. Force one of:
+`--provider` is `fixture` unless `OPENAI_API_KEY` is set (then the default is `openai`). Force either:
 
 ```bash
 absencecritic --provider fixture "What is 2+2?"
-absencecritic --provider ollama "What works for launching a startup?"
 absencecritic --provider openai "What works for launching a startup?"
 ```
 

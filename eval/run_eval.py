@@ -76,19 +76,16 @@ def score_case(item: dict, shielded, baseline) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="AbsenceCritic Phase 0 eval")
-    parser.add_argument(
-        "--provider", choices=("fixture", "openai", "ollama"), default="fixture"
-    )
+    parser.add_argument("--provider", choices=("fixture", "openai"), default="fixture")
     parser.add_argument("--queries", type=Path, default=ROOT / "eval" / "queries.yaml")
     args = parser.parse_args(argv)
     load_repo_env()
 
-    if args.provider == "fixture":
-        provider = FixtureLLM(ROOT / "eval" / "fixtures" / "responses.yaml")
-    elif args.provider == "ollama":
-        provider = OpenAICompat.ollama()
-    else:
-        provider = OpenAICompat()
+    provider = (
+        FixtureLLM(ROOT / "eval" / "fixtures" / "responses.yaml")
+        if args.provider == "fixture"
+        else OpenAICompat()
+    )
     store = YamlStore(ROOT / "data" / "non_survivors")
     rows = []
     for item in load_queries(args.queries):

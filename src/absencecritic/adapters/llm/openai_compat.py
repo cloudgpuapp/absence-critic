@@ -16,9 +16,6 @@ from absencecritic.prompts import (
     revise_user_message,
 )
 
-OLLAMA_BASE_URL = "http://127.0.0.1:11434/v1"
-OLLAMA_DEFAULT_MODEL = "qwen2.5:3b"
-
 
 class OpenAICompat:
     """Chat Completions transport for GeneratorPort and CriticPort."""
@@ -28,8 +25,6 @@ class OpenAICompat:
         api_key: str | None = None,
         base_url: str | None = None,
         model: str | None = None,
-        *,
-        allow_missing_key: bool = False,
     ):
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         self.base_url = (
@@ -39,24 +34,9 @@ class OpenAICompat:
         ).rstrip("/")
         self.model = model or os.environ.get("ABSENCECRITIC_MODEL") or "gpt-4o-mini"
         if not self.api_key:
-            if allow_missing_key or _is_ollama_url(self.base_url):
-                self.api_key = "ollama"
-            else:
-                raise RuntimeError(
-                    "OPENAI_API_KEY is not set. Use --provider fixture, "
-                    "--provider ollama, or python -m absencecritic.adapters.cli.setup_ollama"
-                )
-
-    @classmethod
-    def ollama(cls, model: str | None = None) -> OpenAICompat:
-        return cls(
-            api_key=os.environ.get("OPENAI_API_KEY") or "ollama",
-            base_url=os.environ.get("OPENAI_BASE_URL") or OLLAMA_BASE_URL,
-            model=model
-            or os.environ.get("ABSENCECRITIC_MODEL")
-            or OLLAMA_DEFAULT_MODEL,
-            allow_missing_key=True,
-        )
+            raise RuntimeError(
+                "OPENAI_API_KEY is not set. Tests and eval default to --provider fixture."
+            )
 
     def generate(self, *, query: str) -> str:
         return self._chat(DRAFT_SYSTEM, query, temperature=0.4, json_object=False)
@@ -80,23 +60,6 @@ class OpenAICompat:
     def _chat(
         self, system: str, user: str, *, temperature: float, json_object: bool
     ) -> str:
-        try:
-            return self._post(system, user, temperature=temperature, json_object=json_object)
-        except RuntimeError as exc:
-            if json_object and (
-                "response_format" in str(exc).lower() or _is_ollama_url(self.base_url)
-            ):
-                try:
-                    return self._post(
-                        system, user, temperature=temperature, json_object=False
-                    )
-                except RuntimeError:
-                    raise exc from None
-            raise
-
-    def _post(
-        self, system: str, user: str, *, temperature: float, json_object: bool
-    ) -> str:
         payload: dict = {
             "model": self.model,
             "messages": [
@@ -118,17 +81,9 @@ class OpenAICompat:
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=300) as resp:
+            with urllib.request.urlopen(req, timeout=120) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"OpenAI-compatible request failed: {exc} {detail}") from exc
-        content = body["choices"][0]["message"].get("content")
-        if not content:
-            raise RuntimeError("OpenAI-compatible response had empty content")
-        return content
-
-
-def _is_ollama_url(url: str) -> bool:
-    lowered = url.lower()
-    return "11434" in lowered or "localhost:11434" in lowered or "127.0.0.1:11434" in lowered
+        return body["choices"][0]["message"]["content"]
