@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+from pathlib import Path
 
 from absencecritic.cli import main
 
@@ -53,6 +54,17 @@ def test_cli_ingest(tmp_path, capsys):
     code = main(["ingest", str(source), "--store", str(store_dir)])
     assert code == 0
     assert "file-drawer-note" in capsys.readouterr().out
+    assert (store_dir / "ingested.yaml").exists()
+
+
+def test_cli_ingest_catalog(tmp_path, capsys):
+    fixture = Path(__file__).resolve().parent / "fixtures" / "catalog.yaml"
+    store_dir = tmp_path / "store"
+    store_dir.mkdir()
+    code = main(["ingest", "--catalog", str(fixture), "--store", str(store_dir)])
+    assert code == 0
+    out = capsys.readouterr().out
+    assert "catalog-bls-startup-survival" in out
     assert (store_dir / "ingested.yaml").exists()
 
 

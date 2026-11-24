@@ -1,0 +1,54 @@
+# Copyright 2026 Guzino (https://github.com/guzino)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Frozen catalog fixture. Cites the same public sources as the seed store
+# under new ids. Not a scrape; not a claim of complete failure coverage.
+
+catalog:
+  - id: catalog-bls-startup-survival
+    domain: startups
+    collection: catalog
+    source_url: https://www.bls.gov/bdm/
+    selection_process: >-
+      Advice corpora are written by firms that lasted long enough to publish
+      or raise; BLS tables cover establishment cohorts, not founder blogs.
+    survivor_pattern: Launch playbooks from visible companies.
+    non_survivor_evidence: >-
+      BLS Business Employment Dynamics survival tables show a large share of
+      new U.S. establishments close within a few years. This catalog row
+      points at that table; it does not invent a precise unpublished rate.
+    confidence: 0.85
+    provenance: >-
+      U.S. Bureau of Labor Statistics, Business Employment Dynamics
+      (https://www.bls.gov/bdm/)
+  - id: catalog-osc-2015-replication
+    domain: scientific_literature
+    collection: catalog
+    source_url: https://www.science.org/doi/10.1126/science.aac4716
+    selection_process: >-
+      Original journal findings are the returning sample; failed replications
+      were historically less visible.
+    survivor_pattern: Textbook effects from high-prestige psychology journals.
+    non_survivor_evidence: >-
+      Open Science Collaboration (2015) reproduced 100 psychology findings and
+      observed a substantial drop in significance and effect size relative to
+      originals.
+    confidence: 0.85
+    provenance: >-
+      Open Science Collaboration, Estimating the reproducibility of
+      psychological science, Science, 2015
+      (https://www.science.org/doi/10.1126/science.aac4716)
+  - id: catalog-franco-2014-nulls
+    domain: scientific_literature
+    collection: catalog
+    source_url: https://www.science.org/doi/10.1126/science.1255484
+    selection_process: Null social-science experiments are less likely to be written up.
+    survivor_pattern: Literatures of significant effects.
+    non_survivor_evidence: >-
+      Franco, Malhotra, and Simonovits (2014) found that null results from
+      NSF-related social-science experiments were much less likely to be
+      published.
+    confidence: 0.85
+    provenance: >-
+      Franco, Malhotra, Simonovits, Publication bias in the social sciences,
+      Science, 2014 (https://www.science.org/doi/10.1126/science.1255484)
