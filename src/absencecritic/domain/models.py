@@ -17,6 +17,12 @@ class ConfidenceAdjustment(str, Enum):
     unchanged = "unchanged"
 
 
+class StoreCollection(str, Enum):
+    seed = "seed"
+    catalog = "catalog"
+    feedback = "feedback"
+
+
 class NonSurvivorHit(BaseModel):
     id: str
     summary: str
@@ -45,6 +51,9 @@ class StoreEntry(BaseModel):
     non_survivor_evidence: str
     confidence: float = Field(ge=0.0, le=1.0)
     provenance: str
+    collection: StoreCollection = StoreCollection.seed
+    source_url: Optional[str] = None
+    ingested_at: Optional[str] = None
     source_path: Optional[str] = None
 
 
