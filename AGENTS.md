@@ -20,23 +20,23 @@ Ports-and-adapters around a linear Wald loop. Not LangGraph. Not a single mega-p
 | Prompts | `src/absencecritic/prompts/` | stdlib | pipeline logic, store I/O |
 | Adapters | `src/absencecritic/adapters/` | domain, application.ports, prompts, I/O | other adapters' internals, collapsing stages |
 | Eval | `eval/` | public facade / adapters | rewriting domain models |
-| Origin docs | `docs/` | — | edits unless the user asked |
+| Origin docs | `docs/` | - | edits unless the user asked |
 
 Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult`.
 
 ## Where a change goes
 
-- New field on a critique or store entry → `domain/`
-- Loop steps (draft → retrieve → critique → revise) → `application/`
-- Prompt wording → `src/absencecritic/prompts/`
-- HTTP, fixtures, YAML store, CLI → `adapters/`
-- New LLM backend → `adapters/llm/` implementing `GeneratorPort` and `CriticPort`; do not edit `WaldLoop` unless the port itself changes
-- New store backend → `adapters/store/` implementing `StorePort`
-- Eval queries/fixtures → `eval/`
+- New field on a critique or store entry -> `domain/`
+- Loop steps (draft -> retrieve -> critique -> revise) -> `application/`
+- Prompt wording -> `src/absencecritic/prompts/`
+- HTTP, fixtures, YAML store, CLI -> `adapters/`
+- New LLM backend -> `adapters/llm/` implementing `GeneratorPort` and `CriticPort`; do not edit `WaldLoop` unless the port itself changes
+- New store backend -> `adapters/store/` implementing `StorePort`
+- Eval queries/fixtures -> `eval/`
 
 ## Forbidden
 
-- LangChain, LangGraph, DSPy in Phase 0–1
+- LangChain, LangGraph, DSPy in Phase 0-1
 - Passing store hits into `generate`
 - Inventing failure anecdotes not in the store or critique
 - Store entries without `provenance`
@@ -53,7 +53,7 @@ Apply these on every change and every PR review. They are the same hexagonal rul
 | **S**ingle responsibility | One layer, one Wald stage. Draft does not retrieve. CLI does not own loop policy. Prompts are text, not orchestration. |
 | **O**pen/closed | New LLM or store = new adapter implementing a port. Do not edit `WaldLoop` unless the port contract itself changes. |
 | **L**iskov | `FixtureLLM` and live adapters are substitutes on `GeneratorPort` / `CriticPort`. Critique still validates as `Critique` JSON. Generate still takes no store hits. |
-| **I**nterface segregation | Keep `GeneratorPort`, `CriticPort`, and `StorePort` separate. Do not add store parameters to `generate` to “simplify”. |
+| **I**nterface segregation | Keep `GeneratorPort`, `CriticPort`, and `StorePort` separate. Do not add store parameters to `generate` to "simplify". |
 | **D**ependency inversion | Application depends on ports. Adapters depend inward. Domain never imports adapters. |
 
 A PR that collapses draft+critic into one prompt, or that teaches `domain/` about HTTP, fails SOLID and architecture together.
@@ -62,10 +62,10 @@ A PR that collapses draft+critic into one prompt, or that teaches `domain/` abou
 
 `main` is integration-only. Agents and humans land work through GitHub pull requests.
 
-1. Branch from up-to-date `main` (`feat/…`, `fix/…`, `docs/…`). One concern per PR; split mixed layer dumps.
+1. Branch from up-to-date `main` (`feat/...`, `fix/...`, `docs/...`). One concern per PR; split mixed layer dumps.
 2. Do not commit `.env`, keys, or live eval transcripts that contain secrets.
 3. Before opening: architecture-guard on the diff, `python -m pytest`, `python eval/run_eval.py --provider fixture`. Live eval only if the user asked.
-4. PR body: why (not a file list), Wald invariant, SOLID/layer check, fixture test plan. Use `.github/pull_request_template.md`.
+4. PR body: why (not a file list), Wald invariant, SOLID/layer check, fixture test plan. Use `.github/pull_request_template.md`. Write the body as a UTF-8 file and pass `--body-file`. Never embed markdown backticks in a PowerShell string: `` `a `` is BEL and shows up as a replacement character in GitHub summaries. Plain text and emoji are fine; no curly quotes, ellipsis characters, or em dashes in commit/PR titles.
 5. Reviewers (including agents): architecture and SOLID first, then tests, then nits. Block on invariant breaks. Do not rewrite origin `docs/` in a drive-by review.
 6. Do not merge, force-push `main`, or skip hooks unless the user explicitly asked.
 7. Address review comments with a new commit on the branch (or an explicit amend the user requested). Do not start a parallel rewrite on `main`.

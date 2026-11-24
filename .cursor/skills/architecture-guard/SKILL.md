@@ -9,7 +9,7 @@ Read [AGENTS.md](../../../AGENTS.md) (canonical for every tool). Then inspect th
 
 ## Checks
 
-1. `domain/` imports only stdlib/pydantic — never `application` or `adapters`.
+1. `domain/` imports only stdlib/pydantic - never `application` or `adapters`.
 2. `application/` never imports `adapters`.
 3. `WaldLoop` does not pass store hits into `generate`.
 4. Critic path parses/validates `Critique`; generator path does not load the store.
