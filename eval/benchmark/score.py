@@ -21,7 +21,7 @@ from judge import judge_answer  # noqa: E402
 
 if str(_BENCH_DIR.parent) not in sys.path:
     sys.path.insert(0, str(_BENCH_DIR.parent))
-from answer_checks import leaks_pipeline  # noqa: E402
+from answer_checks import adds_unneeded_caveat, leaks_pipeline  # noqa: E402
 
 ITEMS_PATH = _BENCH_DIR / "items.yaml"
 
@@ -78,7 +78,13 @@ def item_stats(items: list[dict]) -> dict:
     }
 
 
-def score_answer(item: dict, answer: str, *, abstained: bool | None = None) -> dict:
+def score_answer(
+    item: dict,
+    answer: str,
+    *,
+    abstained: bool | None = None,
+    draft: str | None = None,
+) -> dict:
     labels = item["labels"]
     text = answer or ""
     mentioned = bool(MISSING_RE.search(text))
@@ -91,6 +97,9 @@ def score_answer(item: dict, answer: str, *, abstained: bool | None = None) -> d
         ok = False
     if labels["should_not_abstain"] and abstained:
         ok = False
+    unneeded = not labels["should_caveate"] and adds_unneeded_caveat(text, draft)
+    if unneeded:
+        ok = False
     leak = leaks_pipeline(text)
     if leak:
         ok = False
@@ -99,6 +108,7 @@ def score_answer(item: dict, answer: str, *, abstained: bool | None = None) -> d
         "kind": item["kind"],
         "mentioned_missing_data": mentioned,
         "abstained": abstained,
+        "unneeded_caveat": unneeded,
         "pipeline_leak": leak,
         "pass": ok,
     }
@@ -135,9 +145,10 @@ def main(argv: list[str] | None = None) -> int:
         abstained = payload.get("abstained")
         abstained_flag = None if abstained is None else bool(abstained)
         answer = str(payload.get("answer", ""))
-        regex = score_answer(item, answer, abstained=abstained_flag)
+        draft = payload.get("draft")
+        regex = score_answer(item, answer, abstained=abstained_flag, draft=draft)
         judged = judge_answer(
-            item, answer, abstained=abstained_flag, kind=args.judge
+            item, answer, abstained=abstained_flag, kind=args.judge, draft=draft
         )
         row = dict(regex)
         if payload.get("arm"):
@@ -150,6 +161,12 @@ def main(argv: list[str] | None = None) -> int:
             row["agree"] = bool(regex["pass"]) == bool(judged["pass"])
         rows.append(row)
     n_pass = sum(1 for row in rows if row["pass"])
+    false_alarms: dict[str, list[bool]] = {}
+    for row in rows:
+        if not items[row["id"]]["labels"]["should_caveate"]:
+            false_alarms.setdefault(row.get("arm") or "answer", []).append(
+                row["unneeded_caveat"]
+            )
     judged_rows = [row for row in rows if row["judge"].get("pass") is not None]
     n_agree = sum(1 for row in judged_rows if row["agree"])
     payload_out = {
@@ -159,6 +176,9 @@ def main(argv: list[str] | None = None) -> int:
         if judged_rows
         else args.judge,
         "agreement": (n_agree / len(judged_rows)) if judged_rows else None,
+        "control_false_alarm_rate": {
+            arm: sum(flags) / len(flags) for arm, flags in false_alarms.items()
+        },
         "cases": rows,
     }
     print(json.dumps(payload_out, indent=2))

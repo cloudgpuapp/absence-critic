@@ -481,7 +481,7 @@
     suggested_queries: []
   revision: >-
     Water boils at 100 °C (212 °F) at standard atmospheric pressure
-    (1 atm). No survivorship adjustment is required for this fact.
+    (1 atm).
 
 - query: Quote Abraham Wald's survivorship-bias insight in one sentence.
   draft: >-

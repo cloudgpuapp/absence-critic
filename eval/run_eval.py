@@ -31,7 +31,7 @@ from absencecritic.envfile import load_repo_env  # noqa: E402
 EVAL_DIR = ROOT / "eval"
 if str(EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(EVAL_DIR))
-from answer_checks import leaks_pipeline  # noqa: E402
+from answer_checks import adds_unneeded_caveat, leaks_pipeline  # noqa: E402
 from eval_arms import FIXTURE_NOTE, generic_arm  # noqa: E402
 
 ARMS = ("baseline", "generic", "critic_only", "shield")
@@ -52,13 +52,15 @@ def load_queries(path: Path) -> list[dict]:
     return yaml.safe_load(path.read_text(encoding="utf-8"))["queries"]
 
 
-def _arm_pass(kind: str, text: str, critique) -> bool:
+def _arm_pass(kind: str, text: str, critique, *, draft: str | None = None) -> bool:
     if leaks_pipeline(text):
         return False
     missing_lang = bool(MISSING_RE.search(text or ""))
     abstained_text = bool(ABSTAIN_RE.search(text or ""))
     adjustment = critique.confidence_adjustment.value if critique else None
     if kind == "control":
+        if adds_unneeded_caveat(text, draft):
+            return False
         if critique is not None:
             return adjustment != "abstain" and critique.survivorship_risk < 0.5
         return not abstained_text
@@ -84,8 +86,10 @@ def score_arm(item: dict, result) -> dict:
         "missing_data_language": bool(MISSING_RE.search(text or "")),
         "used_store_ids": used_store,
         "pipeline_leak": leaks_pipeline(text),
+        "unneeded_caveat": item["kind"] == "control"
+        and adds_unneeded_caveat(text, result.draft),
         "chars": len(result.final or ""),
-        "pass": _arm_pass(item["kind"], text, critique),
+        "pass": _arm_pass(item["kind"], text, critique, draft=result.draft),
     }
 
 
@@ -232,6 +236,15 @@ def _arm_summary(samples: list[list[dict]]) -> dict:
         mean = sum(rates) / len(rates)
         spread = max(rates) - min(rates)
         out[name] = {"mean": mean, "spread": spread}
+        controls = [
+            row["arms"][name]["unneeded_caveat"]
+            for rows in samples
+            for row in rows
+            if "arms" in row and row.get("kind") == "control"
+        ]
+        out[name]["control_false_alarm_rate"] = (
+            sum(1 for flagged in controls if flagged) / len(controls) if controls else None
+        )
     return out
 
 
