@@ -61,7 +61,16 @@ absencecritic ingest path/to/entries.yaml
 absencecritic ingest --catalog tests/fixtures/catalog.yaml
 ```
 
-Valid entries are appended to `ingested.yaml` under the store directory. Duplicate `id` values are rejected. `--catalog` requires each row to cite an http(s) `source_url`. The generator still never reads the store.
+Valid entries are appended to `ingested.yaml` under the store directory. Duplicate `id` values are rejected. `--catalog` requires each row to cite an http(s) `source_url`.
+
+User notes stay pending until accepted (confidence capped at 0.4; they do not retrieve before that):
+
+```bash
+absencecritic feedback path/to/note.yaml
+absencecritic feedback --accept startup-user-note
+```
+
+Private store files go in another directory (`--store` or `ABSENCECRITIC_STORE`) or `data/non_survivors/private/` (gitignored). Do not commit patient-level or employer failure logs. The generator still never reads the store.
 
 `--provider` is `fixture` unless `OPENAI_API_KEY` is set (then the default is `openai`). Force either:
 

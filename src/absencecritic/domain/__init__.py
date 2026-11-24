@@ -8,6 +8,7 @@ from absencecritic.domain.models import (
     PipelineResult,
     StoreCollection,
     StoreEntry,
+    StoreStatus,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "PipelineResult",
     "StoreCollection",
     "StoreEntry",
+    "StoreStatus",
 ]

@@ -23,6 +23,11 @@ class StoreCollection(str, Enum):
     feedback = "feedback"
 
 
+class StoreStatus(str, Enum):
+    pending = "pending"
+    accepted = "accepted"
+
+
 class NonSurvivorHit(BaseModel):
     id: str
     summary: str
@@ -52,6 +57,7 @@ class StoreEntry(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     provenance: str
     collection: StoreCollection = StoreCollection.seed
+    status: StoreStatus = StoreStatus.accepted
     source_url: Optional[str] = None
     ingested_at: Optional[str] = None
     source_path: Optional[str] = None

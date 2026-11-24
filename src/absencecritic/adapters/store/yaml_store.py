@@ -10,9 +10,11 @@ from pathlib import Path
 
 import yaml
 
-from absencecritic.domain.models import StoreEntry
+from absencecritic.domain.models import StoreCollection, StoreEntry, StoreStatus
 
 INGEST_FILENAME = "ingested.yaml"
+FEEDBACK_DIRNAME = "feedback"
+PENDING_FILENAME = "pending.yaml"
 _INGEST_HEADER = """\
 # Copyright 2026 Guzino (https://github.com/guzino)
 # SPDX-License-Identifier: Apache-2.0
@@ -50,13 +52,15 @@ _STOP = {
 }
 
 
-def _write_entries(path: Path, entries: list[StoreEntry]) -> None:
+def _write_entries(
+    path: Path, entries: list[StoreEntry], header: str = _INGEST_HEADER
+) -> None:
     payload = [
         e.model_dump(mode="json", exclude={"source_path"}, exclude_none=True)
         for e in entries
     ]
     body = yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)
-    path.write_text(_INGEST_HEADER + "\n" + body, encoding="utf-8")
+    path.write_text(header + "\n" + body, encoding="utf-8")
 
 
 _METHOD_TOKENS = frozenset(
@@ -166,16 +170,25 @@ class YamlStore:
         self._bags: list[set[str]] = []
         self.reload()
 
+    def _iter_files(self) -> list[Path]:
+        files: list[Path] = []
+        for path in self.directory.iterdir():
+            if path.name == "private" and path.is_dir():
+                continue
+            if path.suffix.lower() in {".yaml", ".yml", ".json", ".jsonl"}:
+                files.append(path)
+        extra = self.directory / FEEDBACK_DIRNAME
+        if extra.is_dir():
+            for path in extra.iterdir():
+                if path.suffix.lower() in {".yaml", ".yml", ".json", ".jsonl"}:
+                    files.append(path)
+        return sorted(files)
+
     def reload(self) -> None:
         self.entries = []
         if not self.directory.exists():
             raise FileNotFoundError(f"Non-Survivor Store not found: {self.directory}")
-        files = sorted(
-            p
-            for p in self.directory.iterdir()
-            if p.suffix.lower() in {".yaml", ".yml", ".json", ".jsonl"}
-        )
-        for path in files:
+        for path in self._iter_files():
             self.entries.extend(load_entries(path))
         self._bags = [
             tokenize(
@@ -200,6 +213,13 @@ class YamlStore:
         scored: list[tuple[int, float]] = []
         for i, bag in enumerate(self._bags):
             entry = self.entries[i]
+            if entry.status is StoreStatus.pending:
+                continue
+            if (
+                entry.collection is StoreCollection.feedback
+                and entry.status is not StoreStatus.accepted
+            ):
+                continue
             overlap = content & bag
             id_tokens = tokenize(entry.id) - _METHOD_TOKENS
             id_hit = bool(id_tokens & content)
