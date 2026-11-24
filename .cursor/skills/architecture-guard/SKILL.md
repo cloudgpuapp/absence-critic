@@ -9,7 +9,7 @@ Read [AGENTS.md](../../../AGENTS.md) (canonical for every tool). Then inspect th
 
 ## Checks
 
-1. `domain/` imports only stdlib/pydantic — never `application` or `adapters`.
+1. `domain/` imports only stdlib/pydantic - never `application` or `adapters`.
 2. `application/` never imports `adapters`.
 3. `WaldLoop` does not pass store hits into `generate`.
 4. Critic path parses/validates `Critique`; generator path does not load the store.
@@ -17,6 +17,7 @@ Read [AGENTS.md](../../../AGENTS.md) (canonical for every tool). Then inspect th
 6. New code sits in the matching layer (see AGENTS.md table).
 7. SPDX header present on new source files.
 8. SOLID mapping in AGENTS.md: no collapsed stages, no loop edit for a new vendor, ports stay segregated.
+9. Tracked text is UTF-8 with no U+FFFD, BEL, C0/C1 controls, or UTF-8 BOM (`tests/test_text_encoding.py`).
 
 ## Report
 

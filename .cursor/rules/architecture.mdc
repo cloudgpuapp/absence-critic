@@ -5,12 +5,12 @@ alwaysApply: true
 
 # Architecture
 
-Linear Wald loop: generate → retrieve (critic only) → critique JSON → revise. No LangGraph/LangChain/DSPy.
+Linear Wald loop: generate -> retrieve (critic only) -> critique JSON -> revise. No LangGraph/LangChain/DSPy.
 
-- `domain/` — models only; no I/O
-- `application/` — `WaldLoop`; ports only, no HTTP/YAML
-- `adapters/` — LLM, store, CLI
-- `prompts/` — prompt text only
+- `domain/` - models only; no I/O
+- `application/` - `WaldLoop`; ports only, no HTTP/YAML
+- `adapters/` - LLM, store, CLI
+- `prompts/` - prompt text only
 
 The generator must never receive Non-Survivor Store hits. Critic output is validated `Critique` JSON. New features land in the matching layer or they do not land.
 

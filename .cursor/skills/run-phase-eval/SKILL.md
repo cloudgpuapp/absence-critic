@@ -18,6 +18,6 @@ Live provider only if the user asked:
 python eval/run_eval.py --provider openai
 ```
 
-Report pytest counts and eval `passed/total`. If a biased case fails missing-data language, fix the **fixture revision** or scorer — do not weaken domain invariants. If a control abstains, that is a fail.
+Report pytest counts and eval `passed/total`. If a biased case fails missing-data language, fix the **fixture revision** or scorer - do not weaken domain invariants. If a control abstains, that is a fail.
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the fixture pair only. Do not add `OPENAI_API_KEY` to CI.

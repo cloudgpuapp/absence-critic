@@ -1,0 +1,12 @@
+---
+description: Clean UTF-8 for git commits and GitHub PR summaries
+alwaysApply: true
+---
+
+# Git text
+
+Commit titles and PR summaries are UTF-8. Use plain punctuation or emoji. Do not use curly quotes, ellipsis characters, or em dashes.
+
+Write PR bodies with Python Path.write_text and `gh pr create --body-file`. Never put markdown backticks in a PowerShell string: backtick+a is BEL and GitHub shows a replacement character.
+
+`tests/test_text_encoding.py` fails CI on U+FFFD, BEL, C0/C1 controls, UTF-8 BOM, and classic mojibake. Origin `docs/` may keep historical punctuation; they must still be valid UTF-8.
