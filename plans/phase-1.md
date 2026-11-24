@@ -29,7 +29,7 @@ Policy: [`AGENTS.md`](../AGENTS.md). One concern per GitHub PR. CI stays fixture
 - No access-control story except `--store` / `ABSENCECRITIC_STORE`.
 - Retrieve runs **before** critique, unconditionally. Document 03 lists retrieve after empty regions. Queries *about* Wald still overlap store tokens.
 
-**Unknown lethality:** We do not yet know whether a second critic call after extra retrieve is worth the cost, or whether retrieve precision plus a cheap heuristic is enough. Measure on the existing 15 eval queries (and live Grok once) before calling retrieve "done."
+**Unknown lethality:** We do not yet know whether a second critic call after extra retrieve is worth the cost, or whether retrieve precision plus a cheap heuristic is enough. Measure on the existing 15 eval queries (and a live provider once) before calling retrieve "done."
 
 **Armor:** Do not scrape the live web in CI. Do not LLM-summarize HTML into "evidence." Do not pass store hits into `generate` or `revise`. Do not add LangChain/LangGraph/DSPy. Do not rewrite origin `docs/`.
 

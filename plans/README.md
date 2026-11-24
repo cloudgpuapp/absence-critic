@@ -35,8 +35,8 @@ Document 03 integration modes map onto phases; they are not extra products:
 |-------|-------------|--------------|--------|
 | 0 | Minimal Viable Shield | [`phase-0.md`](phase-0.md) | Shipped. Leftover holes listed so we do not reopen them as "Phase 0 bugs." |
 | 1 | Persistent Failure Memory | [`phase-1.md`](phase-1.md) | Slices A-F on `main`. Honest subset of Document 04 (no crawler, no ACL server). |
-| 2 | Specialized Critic Model | [`phase-2.md`](phase-2.md) | Slice A (gold freeze) on `main` (PR #11). Train/held-out split is PR #14. Prompted critic stays default until a held-out swap decision. |
-| 3 | Deeper Integration | [`phase-3.md`](phase-3.md) | Not started. Four origin bullets become four tracks; do not collapse them into one PR. |
+| 2 | Specialized Critic Model | [`phase-2.md`](phase-2.md) | Slices A-F on `main`. Slice G (default specialized critic) is gated on held-out numbers. Prompted critic stays default. |
+| 3 | Deeper Integration | [`phase-3.md`](phase-3.md) | Tracks A-F engineering on `main`. Document 04 success criteria are not claimed on fixture 15/15. |
 
 ## Cross-phase armor
 

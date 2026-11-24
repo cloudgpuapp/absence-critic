@@ -31,7 +31,7 @@ Policy: [`AGENTS.md`](../AGENTS.md).
 - No critique-only judge mode, no preference export, no public benchmark, no org KB product (Phase 3).
 - Seed is a few dozen notes, not "the failure distribution."
 
-**Unknown lethality:** We do not know how much of the live-Grok 15/15 is prompt overfitting to `eval/queries.yaml`. Fixture 15/15 does not measure a new domain.
+**Unknown lethality:** We do not know how much of the live-provider 15/15 is prompt overfitting to `eval/queries.yaml`. Fixture 15/15 does not measure a new domain.
 
 **Armor:**
 - Do not collapse draft+critic into one prompt to "save a call."
