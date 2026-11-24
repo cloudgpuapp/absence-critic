@@ -28,6 +28,13 @@ def test_fixture_eval_passes(capsys):
     assert set(case["arms"]) == {"baseline", "critic_only", "shield"}
 
 
+def test_critic_only_arm_is_store_free(capsys):
+    assert _eval_mod().main(["--provider", "fixture"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    for case in payload["cases"]:
+        assert case["arms"]["critic_only"]["retrieved_ids"] == [], case["id"]
+
+
 def test_fixture_eval_samples_reports_arm_spread(capsys):
     assert _eval_mod().main(["--provider", "fixture", "--samples", "2"]) == 0
     payload = json.loads(capsys.readouterr().out)

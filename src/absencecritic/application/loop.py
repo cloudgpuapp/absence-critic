@@ -22,7 +22,7 @@ def _critique_draft(
     retrieve_k: int,
 ) -> tuple[list[str], Critique]:
     k = suggested_retrieve_k(query, high=retrieve_k)
-    hits = store.retrieve(query, draft, k=k)
+    hits = store.retrieve(query, draft, k=k) if k > 0 else []
     retrieved_ids = [entry.id for entry, _ in hits]
     raw_critique = critic.critique(
         query=query, draft=draft, store_hits=store.format_hits(hits)

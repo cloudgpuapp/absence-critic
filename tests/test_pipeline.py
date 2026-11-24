@@ -46,6 +46,35 @@ def test_run_reuses_supplied_draft_without_generate():
     assert result.draft == draft
 
 
+def test_retrieve_k_zero_never_touches_the_store():
+    inner = FixtureLLM(default_fixture_path())
+    real = YamlStore(default_store_dir())
+    seen: list[str] = []
+
+    class NoRetrieve:
+        def retrieve(self, query, draft="", k=5):
+            raise AssertionError("store.retrieve called with retrieve_k=0")
+
+        def format_hits(self, hits):
+            return real.format_hits(hits)
+
+    class Spy:
+        def generate(self, *, query: str) -> str:
+            return inner.generate(query=query)
+
+        def critique(self, *, query: str, draft: str, store_hits: str) -> str:
+            seen.append(store_hits)
+            return inner.critique(query=query, draft=draft, store_hits=store_hits)
+
+        def revise(self, *, query: str, draft: str, critique_json: str) -> str:
+            return inner.revise(query=query, draft=draft, critique_json=critique_json)
+
+    for query in ("What works for launching a startup?", "What is 2+2?"):
+        result = run(query, provider=Spy(), store=NoRetrieve(), retrieve_k=0)
+        assert result.retrieved_ids == []
+    assert seen == ["(none retrieved)", "(none retrieved)"]
+
+
 def test_baseline_skips_critic():
     q = "What is 2+2?"
     result = _run(q, shield=False)

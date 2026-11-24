@@ -36,6 +36,20 @@ def test_unknown_query_fetches_one():
     assert suggested_retrieve_k("Explain photosynthesis in two sentences.") == 1
 
 
+def test_high_zero_never_fetches():
+    queries = [
+        "Explain photosynthesis in two sentences.",
+        "If I copy visible playbooks, what actually works?",
+        "Compute 7+8.",
+    ]
+    for item in yaml.safe_load((ROOT / "eval" / "queries.yaml").read_text(encoding="utf-8"))[
+        "queries"
+    ]:
+        queries.append(item["query"])
+    for query in queries:
+        assert suggested_retrieve_k(query, high=0) == 0, query
+
+
 def test_paraphrases_match_k_and_overlap_store_hits():
     originals = {
         item["id"]: item["query"]
