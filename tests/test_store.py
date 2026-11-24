@@ -41,6 +41,37 @@ def test_retrieve_ranks_startup_above_unrelated(tmp_path: Path):
     assert hits[0][0].id == "startup-fail"
 
 
+def test_retrieve_two_plus_two_is_empty():
+    store = YamlStore(default_store_dir())
+    assert store.retrieve("What is 2+2?") == []
+
+
+def test_retrieve_startup_still_hits_startup_domain():
+    store = YamlStore(default_store_dir())
+    hits = store.retrieve("What works for launching a startup?")
+    assert hits
+    assert hits[0][0].domain == "startups"
+    ids = {h[0].id for h in hits}
+    assert ids & {
+        "bls-establishment-survival",
+        "vc-portfolio-survivorship",
+        "cbinsights-postmortem-filter",
+        "college-dropout-founder-myth",
+    }
+
+
+def test_retrieve_wald_quote_does_not_lead_with_dropout_myth():
+    store = YamlStore(default_store_dir())
+    query = "Quote Abraham Wald's survivorship-bias insight in one sentence."
+    draft = (
+        "Wald saw that missing planes, not the holes on returned bombers, "
+        "mark the lethal regions."
+    )
+    hits = store.retrieve(query, draft)
+    if hits:
+        assert hits[0][0].id != "college-dropout-founder-myth"
+
+
 def test_seeded_store_loads():
     store = YamlStore(default_store_dir())
     assert len(store.entries) >= 20
