@@ -25,7 +25,28 @@ def test_fixture_eval_passes(capsys):
     assert case["shared_draft"] is True
     drafts = {arm["draft"] for arm in case["arms"].values()}
     assert len(drafts) == 1
-    assert set(case["arms"]) == {"baseline", "critic_only", "shield"}
+    assert set(case["arms"]) == {"baseline", "generic", "critic_only", "shield"}
+    assert payload["arm_deltas_meaningful"] is False
+    assert "not a result" in payload["note"]
+
+
+def test_generic_arm_sends_fixed_caution_and_no_store():
+    mod = _eval_mod()
+    seen: list[str] = []
+
+    class Gen:
+        def revise(self, *, query: str, draft: str, critique_json: str) -> str:
+            seen.append(critique_json)
+            return draft + " Failures may be missing."
+
+    from eval_arms import GENERIC_CAUTION
+
+    result = mod.generic_arm("q", "draft", generator=Gen())
+    assert result.retrieved_ids == []
+    assert result.critique is None
+    sent = json.loads(seen[0])
+    assert sent == GENERIC_CAUTION.model_dump(mode="json")
+    assert sent["non_survivors"] == []
 
 
 def test_critic_only_arm_is_store_free(capsys):
