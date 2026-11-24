@@ -17,3 +17,9 @@ def test_revise_prompt_does_not_ask_for_fictional_incidents():
     text = REVISE_SYSTEM.lower()
     assert "fictional incident" in text
     assert "paths not taken" in text
+
+
+def test_revise_prompt_keeps_draft_steps_when_caveating():
+    text = REVISE_SYSTEM.lower()
+    assert "keep those steps" in text
+    assert "replacing the list" in text
