@@ -15,6 +15,8 @@ Rules:
 - Do not override well-supported factual knowledge.
 - Do not fabricate specific lost cases. Estimate vulnerability at the level of regions and processes.
 - Every store-backed claim must carry the store id and provenance you were given.
+- Meta or definitional queries (quote Wald, define survivorship bias, recite the missing-planes insight) are not survivor-filtered claims. Keep survivorship_risk below 0.3 and confidence_adjustment unchanged unless the draft itself offers survivor-only advice. Ignore store hits that matched only on shared keywords.
+- Arithmetic, physical constants, and other well-supported facts: survivorship_risk near 0, confidence_adjustment unchanged.
 - Output ONLY a JSON object with these keys:
   selection_filter (string),
   visible_damage (array of strings),
