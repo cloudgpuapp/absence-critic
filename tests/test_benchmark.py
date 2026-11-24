@@ -38,6 +38,19 @@ def test_benchmark_ids_disjoint_from_gold_and_fixture_eval():
     assert "control" in kinds
 
 
+def test_benchmark_queries_are_absent_from_src_and_tests():
+    items = _score_mod().load_items()
+    roots = (ROOT / "src", ROOT / "tests")
+    for item in items:
+        query = item["query"]
+        for root in roots:
+            for path in root.rglob("*"):
+                if not path.is_file() or path.suffix not in {".py", ".md", ".yaml"}:
+                    continue
+                text = path.read_text(encoding="utf-8")
+                assert query not in text, f"{item['id']} copied into {path}"
+
+
 def test_scorer_does_not_read_critique_json():
     mod = _score_mod()
     source = (ROOT / "eval" / "benchmark" / "score.py").read_text(encoding="utf-8")
@@ -54,14 +67,14 @@ def test_control_answer_passes_without_missing_data_language():
 
 def test_biased_answer_without_caveat_fails():
     mod = _score_mod()
-    item = next(row for row in mod.load_items() if row["id"] == "tenure-survivors-hire")
-    result = mod.score_answer(item, "Hire the five-year people. They are the winners.")
+    item = next(row for row in mod.load_items() if row["id"] == "decade-stayer-shortlist")
+    result = mod.score_answer(item, "Pick the decade stayers. They are the winners.")
     assert result["pass"] is False
 
 
 def test_biased_answer_with_missing_data_language_passes():
     mod = _score_mod()
-    item = next(row for row in mod.load_items() if row["id"] == "tenure-survivors-hire")
+    item = next(row for row in mod.load_items() if row["id"] == "decade-stayer-shortlist")
     result = mod.score_answer(
         item,
         "That sample is missing people who left. The unpublished exits are the non-survivors.",
