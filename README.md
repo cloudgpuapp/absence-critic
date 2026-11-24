@@ -151,6 +151,17 @@ python eval/benchmark/score.py --answers eval/benchmark/answers.jsonl
 python -m pytest
 ```
 
+Both eval runners generate one draft per question and run four arms on that same draft, so differences come from the arm and not from a different draft:
+
+| Arm | Critic call | Store | What it isolates |
+|-----|-------------|-------|------------------|
+| `baseline` | no | no | The unrevised draft. |
+| `generic` | no | no | A plain "watch for survivorship bias" revision: the reviser gets one fixed caution for every question ([`eval/eval_arms.py`](eval/eval_arms.py)). The cheapest alternative to AbsenceCritic. |
+| `critic_only` | yes | no | The Wald critic with `retrieve_k=0`, so the loop never calls the store. Shows what the critic adds beyond the generic caution. |
+| `shield` | yes | yes | The full loop. The gap to `critic_only` is what the Non-Survivor Store adds. |
+
+The two middle arms are separate on purpose: `generic` answers "is a Wald critic better than a reminder?", and `critic_only` answers "does the store change the critique?". Neither question can be answered from fixtures. `FixtureLLM.revise` returns one recorded revision whatever critique it receives, so `generic`, `critic_only`, and `shield` all score 15/15 there, and fixture output says `arm_deltas_meaningful: false`. Only a live run (`--provider openai --samples 3`) shows whether the critic or the store actually changes answers.
+
 [`eval/queries.yaml`](eval/queries.yaml) has ~12 survivor-biased questions and 3 controls. [`eval/fixtures/responses.yaml`](eval/fixtures/responses.yaml) holds recorded draft/critique/revision triples. Phase 2 gold critic JSONL is [`eval/gold/critiques.jsonl`](eval/gold/critiques.jsonl), split by committed ids in [`eval/gold/splits.yaml`](eval/gold/splits.yaml) into `train.jsonl` and `heldout.jsonl` (`python eval/export_gold.py` after fixture edits). Optional human edits go in [`eval/gold/overlay.yaml`](eval/gold/overlay.yaml) and win on the train/held-out export only; they do not rewrite fixtures. Live critic dumps go to gitignored `eval/gold/incoming/` via `python eval/log_incoming.py --query "..." --provider openai` and stay out of train until a human PR. Fixture 15/15 is product regression, not a training score. To refresh fixtures from a live model: `python eval/record_fixtures.py --provider openai --out eval/fixtures/responses.yaml`. Then `python eval/export_gold.py` (or `--check` without writing).
 
 Critic fine-tune stays off CI: [`scripts/critic_train.md`](scripts/critic_train.md) (`python scripts/train_critic.py --dry-run`). Serve the result through `--critic local`. Do not train the generator on critique JSON. Primary-model DPO on pair export is [`scripts/primary_preference.md`](scripts/primary_preference.md) (`python scripts/train_primary.py --pairs ... --dry-run`). The default generator stays `--provider`; if controls start abstaining, the experiment failed.
