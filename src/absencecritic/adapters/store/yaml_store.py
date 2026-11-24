@@ -10,7 +10,13 @@ from pathlib import Path
 
 import yaml
 
-from absencecritic.domain.models import StoreCollection, StoreEntry, StoreStatus
+from absencecritic.domain.models import (
+    MAX_AUTHOR_PRIOR_CONFIDENCE,
+    StoreCollection,
+    StoreEntry,
+    StoreEvidence,
+    StoreStatus,
+)
 
 INGEST_FILENAME = "ingested.yaml"
 FEEDBACK_DIRNAME = "feedback"
@@ -259,6 +265,13 @@ class YamlStore:
         )
         if not validated.provenance.strip():
             raise ValueError("provenance is required")
+        if (
+            validated.evidence is StoreEvidence.author_prior
+            and validated.confidence > MAX_AUTHOR_PRIOR_CONFIDENCE
+        ):
+            raise ValueError(
+                f"author_prior confidence must be <= {MAX_AUTHOR_PRIOR_CONFIDENCE}"
+            )
         if any(existing.id == validated.id for existing in self.entries):
             raise ValueError(f"duplicate store id: {validated.id}")
         if not validated.ingested_at:
@@ -288,6 +301,7 @@ class YamlStore:
                         f"survivor_pattern: {entry.survivor_pattern}",
                         f"non_survivor_evidence: {entry.non_survivor_evidence}",
                         f"confidence: {entry.confidence}",
+                        f"evidence: {entry.evidence.value}",
                         f"provenance: {entry.provenance}",
                     ]
                 )
