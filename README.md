@@ -38,7 +38,7 @@ Core claim: a model trained only on the planes that returned will correctly lear
 
 Python package plus CLI on a ports-and-adapters layout (`domain` / `application` / `adapters` / `prompts`). Loop: primary draft (no store) → keyword retrieval from the Non-Survivor Store → Wald critic JSON → primary revision. Tests and eval use recorded fixtures so they run without an API key.
 
-Agent conventions (tool-agnostic): [`AGENTS.md`](AGENTS.md). Claude Code: [`CLAUDE.md`](CLAUDE.md). Humans: [`CONTRIBUTING.md`](CONTRIBUTING.md). Phase 1 working plan (not origin): [`plans/phase-1.md`](plans/phase-1.md). Work lands through pull requests, not direct pushes to `main`. Cursor loaders stay under [`.cursor/`](.cursor/); skill *content* is generic and is not duplicated per vendor.
+Agent conventions (tool-agnostic): [`AGENTS.md`](AGENTS.md). Claude Code: [`CLAUDE.md`](CLAUDE.md). Humans: [`CONTRIBUTING.md`](CONTRIBUTING.md). Working plans: [`plans/phase-1.md`](plans/phase-1.md), [`plans/phase-2.md`](plans/phase-2.md). Work lands through pull requests, not direct pushes to `main`. Cursor loaders stay under [`.cursor/`](.cursor/); skill *content* is generic and is not duplicated per vendor.
 
 ### Install
 
@@ -116,7 +116,7 @@ python eval/run_eval.py --provider fixture
 python -m pytest
 ```
 
-[`eval/queries.yaml`](eval/queries.yaml) has ~12 survivor-biased questions and 3 controls. [`eval/fixtures/responses.yaml`](eval/fixtures/responses.yaml) holds recorded draft/critique/revision triples. To refresh fixtures from a live model, run each query with `--provider openai --json` and replace the matching block in that file.
+[`eval/queries.yaml`](eval/queries.yaml) has ~12 survivor-biased questions and 3 controls. [`eval/fixtures/responses.yaml`](eval/fixtures/responses.yaml) holds recorded draft/critique/revision triples. Phase 2 gold critic JSONL is [`eval/gold/critiques.jsonl`](eval/gold/critiques.jsonl) (`python eval/export_gold.py` after fixture edits). To refresh fixtures from a live model, run each query with `--provider openai --json` and replace the matching block in that file.
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs pytest and fixture eval on `main` and pull requests. It never calls a live provider.
 
