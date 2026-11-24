@@ -242,7 +242,7 @@ def test_cited_seed_entries_link_their_source():
     store = YamlStore(default_store_dir())
     cited = [e for e in store.entries if e.evidence.value == "cited"]
     unlinked = sorted(e.id for e in cited if not e.source_url)
-    assert len(unlinked) <= 2, unlinked
+    assert not unlinked, unlinked
     for e in store.entries:
         if e.source_url:
             assert e.source_url.startswith("https://"), e.id
