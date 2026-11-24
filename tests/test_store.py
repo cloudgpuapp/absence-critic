@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from absencecritic.adapters.store.yaml_store import YamlStore, tokenize
-from absencecritic.domain.models import StoreEntry
+from absencecritic.domain.models import MAX_AUTHOR_PRIOR_CONFIDENCE, StoreEntry
 from absencecritic.paths import default_store_dir
 
 
@@ -143,7 +143,7 @@ def test_add_stamps_ingested_at_and_roundtrips_collection(tmp_path: Path):
             selection_process="public advice is written by firms that lasted",
             survivor_pattern="visible launch playbooks",
             non_survivor_evidence="quiet closures are missing from blogs",
-            confidence=0.6,
+            confidence=0.5,
             provenance="Author prior, low confidence",
             collection="catalog",
             source_url="https://example.org/bed",
@@ -166,7 +166,7 @@ def test_add_appends_ingested_yaml_and_ranks(tmp_path: Path):
         selection_process="public advice is written by firms that lasted",
         survivor_pattern="visible launch playbooks",
         non_survivor_evidence="cohorts that close without a post-mortem are missing from blogs",
-        confidence=0.7,
+        confidence=0.5,
         provenance="Author prior, low confidence",
     )
     store.add(entry)
@@ -204,3 +204,42 @@ def test_add_rejects_duplicate_id(tmp_path: Path):
                 provenance="test",
             )
         )
+
+
+def test_add_rejects_author_prior_above_cap(tmp_path: Path):
+    store = YamlStore(tmp_path)
+    entry = StoreEntry(
+        id="overconfident-prior",
+        domain="startups",
+        selection_process="s",
+        survivor_pattern="p",
+        non_survivor_evidence="e",
+        confidence=0.8,
+        provenance="Author prior, low confidence",
+    )
+    with pytest.raises(ValueError, match="author_prior"):
+        store.add(entry)
+
+
+def test_seed_author_priors_stay_under_cap():
+    store = YamlStore(default_store_dir())
+    priors = [e for e in store.entries if e.evidence.value == "author_prior"]
+    assert priors
+    assert all(e.confidence <= MAX_AUTHOR_PRIOR_CONFIDENCE for e in priors), [
+        (e.id, e.confidence) for e in priors if e.confidence > MAX_AUTHOR_PRIOR_CONFIDENCE
+    ]
+    assert len(priors) <= 8
+
+
+def test_seed_cited_entries_do_not_hedge_as_author_prior():
+    store = YamlStore(default_store_dir())
+    for e in store.entries:
+        if e.evidence.value == "cited":
+            assert "author prior" not in e.provenance.lower(), e.id
+
+
+def test_format_hits_shows_evidence():
+    store = YamlStore(default_store_dir())
+    entry = next(e for e in store.entries if e.evidence.value == "author_prior")
+    assert "evidence: author_prior" in store.format_hits([(entry, 0.5)])
+
