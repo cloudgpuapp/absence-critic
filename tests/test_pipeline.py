@@ -16,6 +16,36 @@ def _run(query: str, *, shield: bool = True):
     )
 
 
+def test_run_reuses_supplied_draft_without_generate():
+    inner = FixtureLLM(default_fixture_path())
+
+    class Count:
+        def __init__(self) -> None:
+            self.n = 0
+
+        def generate(self, *, query: str) -> str:
+            self.n += 1
+            return inner.generate(query=query)
+
+        def critique(self, *, query: str, draft: str, store_hits: str) -> str:
+            return inner.critique(query=query, draft=draft, store_hits=store_hits)
+
+        def revise(self, *, query: str, draft: str, critique_json: str) -> str:
+            return inner.revise(query=query, draft=draft, critique_json=critique_json)
+
+    counted = Count()
+    draft = inner.generate(query="What is 2+2?")
+    result = run(
+        "What is 2+2?",
+        provider=counted,
+        store=YamlStore(default_store_dir()),
+        shield=True,
+        draft=draft,
+    )
+    assert counted.n == 0
+    assert result.draft == draft
+
+
 def test_baseline_skips_critic():
     q = "What is 2+2?"
     result = _run(q, shield=False)

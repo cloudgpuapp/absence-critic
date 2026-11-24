@@ -17,8 +17,23 @@ def _eval_mod():
     return mod
 
 
-def test_fixture_eval_passes():
+def test_fixture_eval_passes(capsys):
     assert _eval_mod().main(["--provider", "fixture"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["passed"] == payload["total"]
+    case = next(row for row in payload["cases"] if row["id"] == "startup-launch")
+    assert case["shared_draft"] is True
+    drafts = {arm["draft"] for arm in case["arms"].values()}
+    assert len(drafts) == 1
+    assert set(case["arms"]) == {"baseline", "critic_only", "shield"}
+
+
+def test_fixture_eval_samples_reports_arm_spread(capsys):
+    assert _eval_mod().main(["--provider", "fixture", "--samples", "2"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["samples"] == 2
+    assert payload["arms"]["shield"]["spread"] == 0.0
+    assert payload["arms"]["shield"]["mean"] == 1.0
 
 
 def test_eval_records_error_and_continues(tmp_path, capsys):
