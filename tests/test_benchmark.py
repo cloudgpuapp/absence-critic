@@ -5,6 +5,7 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,27 +55,86 @@ def test_benchmark_ids_disjoint_from_gold_and_fixture_eval():
     assert "control" in kinds
 
 
-def test_benchmark_queries_are_absent_from_src_and_tests():
+def _non_benchmark_texts():
+    for root in (ROOT / "src", ROOT / "tests"):
+        for path in root.rglob("*"):
+            if path.is_file() and path.suffix in {".py", ".md", ".yaml"}:
+                yield path
+    eval_dir = ROOT / "eval"
+    yield eval_dir / "queries.yaml"
+    yield eval_dir / "queries_paraphrase.yaml"
+    yield eval_dir / "fixtures" / "responses.yaml"
+    yield eval_dir / "gold" / "overlay.yaml"
+    yield from (eval_dir / "gold").glob("*.jsonl")
+
+
+def test_benchmark_queries_and_ids_are_absent_outside_the_benchmark():
     items = _score_mod().load_items()
-    roots = (ROOT / "src", ROOT / "tests")
+    texts = {path: path.read_text(encoding="utf-8") for path in _non_benchmark_texts()}
     for item in items:
-        query = item["query"]
-        for root in roots:
-            for path in root.rglob("*"):
-                if not path.is_file() or path.suffix not in {".py", ".md", ".yaml"}:
-                    continue
-                text = path.read_text(encoding="utf-8")
-                assert query not in text, f"{item['id']} copied into {path}"
+        for path, text in texts.items():
+            assert item["query"] not in text, f"{item['id']} query copied into {path}"
+            if path.parent.name != "tests":
+                assert item["id"] not in text, f"{item['id']} id used in {path}"
 
 
-def test_benchmark_fixtures_match_items_exactly():
+def test_benchmark_fixtures_only_record_current_items():
     items = _score_mod().load_items()
     fixtures = yaml.safe_load(
         (ROOT / "eval" / "benchmark" / "fixtures.yaml").read_text(encoding="utf-8")
     )
-    assert {row["query"].strip() for row in fixtures} == {
-        item["query"].strip() for item in items
-    }
+    recorded = {row["query"].strip() for row in fixtures}
+    assert recorded <= {item["query"].strip() for item in items}
+    kinds = {item["kind"] for item in items if item["query"].strip() in recorded}
+    assert kinds == {"biased", "control"}
+
+
+def test_benchmark_size_and_spread():
+    stats = _score_mod().item_stats(_score_mod().load_items())
+    assert stats["items"] >= 25
+    assert stats["kinds"]["control"] >= 8
+    assert stats["domains"] >= 15
+
+
+def test_every_item_records_an_annotator():
+    items = _score_mod().load_items()
+    assert all(item["annotator"] for item in items)
+    stats = _score_mod().item_stats(items)
+    assert sum(stats["annotators"].values()) == stats["items"]
+
+
+def test_load_items_rejects_missing_annotator(tmp_path):
+    path = tmp_path / "items.yaml"
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "items": [
+                    {
+                        "id": "x",
+                        "kind": "control",
+                        "domain": "math",
+                        "query": "1+1?",
+                        "labels": {
+                            "should_caveate": False,
+                            "should_not_abstain": True,
+                            "must_mention_missing_data": False,
+                        },
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="annotator"):
+        _score_mod().load_items(path)
+
+
+def test_fixture_mode_skips_unrecorded_items():
+    run = _run_mod()
+    items = _score_mod().load_items()
+    runnable, skipped = run.split_recorded(items, run.fixture_queries())
+    assert len(runnable) + len(skipped) == len(items)
+    assert "surviving-fund-strategy" in skipped
 
 
 def test_scorer_does_not_read_critique_json():

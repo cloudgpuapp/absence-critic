@@ -37,6 +37,18 @@ def _provider(name: str):
     return OpenAICompat()
 
 
+def fixture_queries(path: Path = BENCH_FIXTURES) -> set[str]:
+    rows = yaml.safe_load(path.read_text(encoding="utf-8")) or []
+    return {str(row["query"]).strip() for row in rows}
+
+
+def split_recorded(items: list[dict], recorded: set[str]) -> tuple[list[dict], list[str]]:
+    """Fixture mode only runs recorded items; the rest need a live provider."""
+    runnable = [item for item in items if item["query"].strip() in recorded]
+    skipped = [item["id"] for item in items if item["query"].strip() not in recorded]
+    return runnable, skipped
+
+
 def write_answers(items: list[dict], *, provider, store, out) -> list[dict]:
     rows = []
     for item in items:
@@ -70,12 +82,20 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     load_repo_env()
     items = _load_items(args.items)
+    skipped: list[str] = []
+    if args.provider == "fixture":
+        items, skipped = split_recorded(items, fixture_queries())
     provider = _provider(args.provider)
     store = YamlStore(ROOT / "data" / "non_survivors")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open("w", encoding="utf-8") as handle:
         rows = write_answers(items, provider=provider, store=store, out=handle)
-    print(json.dumps({"wrote": len(rows), "path": str(args.out)}, indent=2))
+    print(
+        json.dumps(
+            {"wrote": len(rows), "path": str(args.out), "skipped_unrecorded": skipped},
+            indent=2,
+        )
+    )
     return 0
 
 
