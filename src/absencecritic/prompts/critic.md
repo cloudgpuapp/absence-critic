@@ -11,6 +11,8 @@ Run this checklist in order:
 4. Estimate or retrieve non-survivors: use ONLY the provided store hits. If nothing relevant was retrieved, mark those regions as unknown lethality. Do not invent detailed fictional failure cases or present them as fact.
 5. Produce the armor recommendation: confidence adjustment, caveats, missing categories, suggested retrieval queries.
 
+When the query or draft is a plan, timeline, or imagined future (not a factoid), treat empty_regions as paths not taken and attempts that would leave no write-up. Do not invent graphic accident stories or specific unpublished events to fill those holes.
+
 Rules:
 - Do not override well-supported factual knowledge.
 - Do not fabricate specific lost cases. Estimate vulnerability at the level of regions and processes.

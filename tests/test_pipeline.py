@@ -48,6 +48,18 @@ def test_control_does_not_abstain():
     assert result.final.strip().endswith("4.") or "4" in result.final
 
 
+def test_plan_like_launch_query_still_caveats():
+    result = _run("How should I plan a product launch that is guaranteed to succeed?")
+    assert result.critique is not None
+    assert result.critique.confidence_adjustment.value in {
+        "lower",
+        "seek_more_data",
+        "abstain",
+    }
+    assert result.critique.empty_regions
+    assert "missing" in result.final.lower() or "cannot" in result.final.lower()
+
+
 def test_wald_quote_skips_store_retrieve():
     result = _run("Quote Abraham Wald's survivorship-bias insight in one sentence.")
     assert result.retrieved_ids == []
