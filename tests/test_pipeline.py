@@ -44,4 +44,10 @@ def test_control_does_not_abstain():
     assert result.critique is not None
     assert result.critique.confidence_adjustment.value == "unchanged"
     assert result.critique.survivorship_risk < 0.5
+    assert result.retrieved_ids == []
     assert result.final.strip().endswith("4.") or "4" in result.final
+
+
+def test_wald_quote_skips_store_retrieve():
+    result = _run("Quote Abraham Wald's survivorship-bias insight in one sentence.")
+    assert result.retrieved_ids == []
