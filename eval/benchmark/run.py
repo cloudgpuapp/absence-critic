@@ -50,15 +50,25 @@ def split_recorded(items: list[dict], recorded: set[str]) -> tuple[list[dict], l
 
 
 def write_answers(items: list[dict], *, provider, store, out) -> list[dict]:
+    """One draft per item, reused by every arm (same arms as eval/run_eval.py)."""
     rows = []
     for item in items:
         query = item["query"]
-        baseline = run(query, provider=provider, store=store, shield=False)
-        shielded = run(query, provider=provider, store=store, shield=True)
-        for arm, result in (("baseline", baseline), ("shield", shielded)):
+        draft = provider.generate(query=query)
+        arms = (
+            ("baseline", run(query, provider=provider, store=store, shield=False, draft=draft)),
+            (
+                "critic_only",
+                run(query, provider=provider, store=store, retrieve_k=0, draft=draft),
+            ),
+            ("shield", run(query, provider=provider, store=store, draft=draft)),
+        )
+        for arm, result in arms:
             row = {
                 "id": item["id"],
                 "arm": arm,
+                "draft": result.draft,
+                "retrieved_ids": result.retrieved_ids,
                 "answer": result.final,
             }
             rows.append(row)
