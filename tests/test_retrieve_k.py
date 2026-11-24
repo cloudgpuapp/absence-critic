@@ -32,6 +32,36 @@ def test_survivor_advice_fetches_high():
     ) == 5
 
 
+def test_factoid_shape_not_phrase_list():
+    for query in (
+        "What temperature does water boil at on Everest?",
+        "How many bones are in the adult human hand?",
+        "Which planet is closest to the Sun?",
+        "Who wrote Pride and Prejudice?",
+        "When did the Berlin Wall fall?",
+        "Name the largest ocean on Earth.",
+    ):
+        assert suggested_retrieve_k(query) == 0, query
+
+
+def test_factoid_opener_with_selection_cue_still_fetches():
+    assert suggested_retrieve_k("Which diets work, based only on published success stories?") == 5
+    assert suggested_retrieve_k("What is the best way to copy famous founders?") == 5
+
+
+def test_sample_justified_question_is_not_a_factoid():
+    query = "Which phone brands are toughest, judging by the old handsets people still use?"
+    assert suggested_retrieve_k(query) == 1
+
+
+def test_long_open_question_is_not_a_factoid():
+    query = (
+        "What is going on in a market where many small shops open and close every year "
+        "and nobody tracks the ones that quietly disappear?"
+    )
+    assert suggested_retrieve_k(query) == 1
+
+
 def test_unknown_query_fetches_one():
     assert suggested_retrieve_k("Explain photosynthesis in two sentences.") == 1
 
