@@ -29,7 +29,12 @@ _METHOD = re.compile(r"\b(wald|survivorship|survivorship-bias)\b", re.I)
 
 
 def suggested_retrieve_k(query: str, *, high: int = 5) -> int:
-    """Return 0 for arithmetic/definitional controls, high for survivor-advice cues, else 1."""
+    """Return 0 for arithmetic/definitional controls, high for survivor-advice cues, else 1.
+
+    Never exceeds `high`, so high=0 always means no store hits.
+    """
+    if high <= 0:
+        return 0
     q = query.strip()
     if _ARITH.search(q) or _FACTOID.search(q):
         return 0
