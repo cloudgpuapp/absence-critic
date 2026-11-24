@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -101,12 +102,6 @@ def apply_overlay(records: list[dict], overlays: dict[str, dict]) -> list[dict]:
     return applied
 
 
-def _dump_jsonl(path: Path, rows: list[dict]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    lines = [json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows]
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def gold_records(fixture_path: Path | None = None) -> list[dict]:
     path = fixture_path or default_fixture_path()
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -154,22 +149,76 @@ def _partition(records: list[dict]) -> tuple[list[dict], list[dict]]:
     return train, heldout
 
 
-def write_gold(
-    dest: Path | None = None, *, overlay_path: Path | None = None
-) -> Path:
+def rendered_gold(*, overlay_path: Path | None = None) -> dict[str, str]:
     records = gold_records()
     overlaid = apply_overlay(records, load_overlays(overlay_path))
     train, heldout = _partition(overlaid)
+    return {
+        "critiques.jsonl": _jsonl_text(records),
+        "train.jsonl": _jsonl_text(train),
+        "heldout.jsonl": _jsonl_text(heldout),
+    }
+
+
+def _jsonl_text(rows: list[dict]) -> str:
+    lines = [json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows]
+    return "\n".join(lines) + "\n"
+
+
+def write_gold(
+    dest: Path | None = None, *, overlay_path: Path | None = None
+) -> Path:
+    payloads = rendered_gold(overlay_path=overlay_path)
     out = dest or GOLD_PATH
-    _dump_jsonl(out, records)
-    _dump_jsonl(out.parent / TRAIN_PATH.name, train)
-    _dump_jsonl(out.parent / HELDOUT_PATH.name, heldout)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(payloads["critiques.jsonl"], encoding="utf-8")
+    out.parent.joinpath("train.jsonl").write_text(
+        payloads["train.jsonl"], encoding="utf-8"
+    )
+    out.parent.joinpath("heldout.jsonl").write_text(
+        payloads["heldout.jsonl"], encoding="utf-8"
+    )
     return out
 
 
+def check_gold(*, overlay_path: Path | None = None) -> list[str]:
+    payloads = rendered_gold(overlay_path=overlay_path)
+    stale: list[str] = []
+    mapping = {
+        "critiques.jsonl": GOLD_PATH,
+        "train.jsonl": TRAIN_PATH,
+        "heldout.jsonl": HELDOUT_PATH,
+    }
+    for name, path in mapping.items():
+        current = path.read_text(encoding="utf-8") if path.is_file() else ""
+        if current != payloads[name]:
+            stale.append(name)
+    return stale
+
+
 def main(argv: list[str] | None = None) -> int:
-    del argv
-    path = write_gold()
+    parser = argparse.ArgumentParser(
+        description="Freeze fixture critiques as gold JSONL. Overlay applies to train/held-out only."
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        help="Write critiques.jsonl here; train.jsonl and heldout.jsonl are siblings",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Exit 1 if committed gold files are stale; do not write",
+    )
+    args = parser.parse_args(argv)
+    if args.check:
+        stale = check_gold()
+        if stale:
+            print("stale: " + ", ".join(stale))
+            return 1
+        print("gold files match export")
+        return 0
+    path = write_gold(args.out)
     print(path.as_posix())
     return 0
 
