@@ -1,0 +1,13 @@
+---
+description: Wald prompt assets stay separate from pipeline and store I/O
+globs: src/absencecritic/prompts/**
+alwaysApply: false
+---
+
+# Prompts
+
+Edit wording here, not inside `WaldLoop` or adapters beyond loading these files.
+
+- Draft/generate: no store, no survivorship lecture unless the user asked
+- Critic: Wald checklist; JSON only; use provided store hits; mark unknown lethality; do not invent lost cases
+- Revise: apply `confidence_adjustment`; do not add anecdotes absent from the critique

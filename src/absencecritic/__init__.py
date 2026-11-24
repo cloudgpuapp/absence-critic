@@ -3,8 +3,8 @@
 
 """AbsenceCritic: a survivorship-bias shield for language models."""
 
-from absencecritic.pipeline import PipelineResult, run
-from absencecritic.schemas import Critique, StoreEntry
+from absencecritic.application.loop import run
+from absencecritic.domain.models import Critique, PipelineResult, StoreEntry
 
 __all__ = ["Critique", "PipelineResult", "StoreEntry", "run"]
 __version__ = "0.1.0"

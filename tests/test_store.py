@@ -3,8 +3,8 @@
 
 from pathlib import Path
 
+from absencecritic.adapters.store.yaml_store import YamlStore, tokenize
 from absencecritic.paths import default_store_dir
-from absencecritic.store import NonSurvivorStore, tokenize
 
 
 def test_tokenize_drops_stopwords():
@@ -32,14 +32,14 @@ def test_retrieve_ranks_startup_above_unrelated(tmp_path: Path):
 """,
         encoding="utf-8",
     )
-    store = NonSurvivorStore(tmp_path)
+    store = YamlStore(tmp_path)
     hits = store.retrieve("What works for launching a startup?")
     assert hits
     assert hits[0][0].id == "startup-fail"
 
 
 def test_seeded_store_loads():
-    store = NonSurvivorStore(default_store_dir())
+    store = YamlStore(default_store_dir())
     assert len(store.entries) >= 20
     ids = {e.id for e in store.entries}
     assert "bls-establishment-survival" in ids

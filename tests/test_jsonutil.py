@@ -3,7 +3,7 @@
 
 import pytest
 
-from absencecritic.jsonutil import parse_json_object
+from absencecritic.application.jsonutil import parse_json_object
 
 
 def test_parse_plain_object():

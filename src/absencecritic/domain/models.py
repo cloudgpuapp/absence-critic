@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
@@ -45,3 +46,13 @@ class StoreEntry(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     provenance: str
     source_path: Optional[str] = None
+
+
+@dataclass
+class PipelineResult:
+    query: str
+    draft: str
+    retrieved_ids: list[str] = field(default_factory=list)
+    critique: Optional[Critique] = None
+    final: str = ""
+    shielded: bool = True

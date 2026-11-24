@@ -1,0 +1,9 @@
+---
+description: Origin design documents are frozen unless the user asks to edit them
+globs: docs/**
+alwaysApply: false
+---
+
+# Origin docs
+
+`docs/` is the conceptual origin package. Do not rewrite, shorten, or “improve” it during refactors. Edit only when the user explicitly asks. Keep SPDX headers if you do edit.

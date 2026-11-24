@@ -1,0 +1,15 @@
+---
+description: Python conventions for AbsenceCritic library and tests
+globs: src/**/*.py,tests/**/*.py
+alwaysApply: false
+---
+
+# Python
+
+- SPDX header: `Copyright 2026 Guzino (https://github.com/guzino)` and `SPDX-License-Identifier: Apache-2.0`
+- Python 3.10+; pydantic v2 for domain models
+- Domain must not import `adapters` or `application`
+- Application must not import `adapters`
+- Prefer ports over passing a raw `stage=` string through the loop
+- No secrets in source; live keys via env only
+- Tests use the fixture LLM unless the user asked for a live provider

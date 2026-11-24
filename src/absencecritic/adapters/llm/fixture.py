@@ -15,8 +15,8 @@ def query_hash(query: str) -> str:
     return hashlib.sha256(query.strip().encode("utf-8")).hexdigest()[:16]
 
 
-class FixtureProvider:
-    """Offline provider keyed by exact query text and by query hash."""
+class FixtureLLM:
+    """Offline LLM implementing GeneratorPort and CriticPort."""
 
     def __init__(self, path: Path):
         self.path = Path(path)
@@ -47,16 +47,16 @@ class FixtureProvider:
             )
         return item
 
-    def complete(self, *, system: str, user: str, stage: str, query: str) -> str:
-        del system, user
-        item = self._lookup(query)
-        if stage == "draft":
-            return str(item["draft"])
-        if stage == "critique":
-            critique = item["critique"]
-            if isinstance(critique, str):
-                return critique
-            return json.dumps(critique)
-        if stage == "revise":
-            return str(item["revision"])
-        raise ValueError(f"Unknown stage: {stage}")
+    def generate(self, *, query: str) -> str:
+        return str(self._lookup(query)["draft"])
+
+    def critique(self, *, query: str, draft: str, store_hits: str) -> str:
+        del draft, store_hits
+        critique = self._lookup(query)["critique"]
+        if isinstance(critique, str):
+            return critique
+        return json.dumps(critique)
+
+    def revise(self, *, query: str, draft: str, critique_json: str) -> str:
+        del draft, critique_json
+        return str(self._lookup(query)["revision"])

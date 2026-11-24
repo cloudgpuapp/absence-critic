@@ -1,0 +1,17 @@
+---
+description: Ports-and-adapters layout and Wald-loop isolation for AbsenceCritic
+alwaysApply: true
+---
+
+# Architecture
+
+Linear Wald loop: generate → retrieve (critic only) → critique JSON → revise. No LangGraph/LangChain/DSPy.
+
+- `domain/` — models only; no I/O
+- `application/` — `WaldLoop`; ports only, no HTTP/YAML
+- `adapters/` — LLM, store, CLI
+- `prompts/` — prompt text only
+
+The generator must never receive Non-Survivor Store hits. Critic output is validated `Critique` JSON. New features land in the matching layer or they do not land.
+
+Do not put business logic in the CLI. Do not collapse draft+critic into one prompt. Same HTTP class may implement both LLM ports; calls stay separate (`generate` / `critique` / `revise`).

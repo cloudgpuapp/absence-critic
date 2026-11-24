@@ -9,7 +9,7 @@ from pathlib import Path
 
 import yaml
 
-from absencecritic.schemas import StoreEntry
+from absencecritic.domain.models import StoreEntry
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 _STOP = {
@@ -65,7 +65,7 @@ def _load_file(path: Path) -> list[StoreEntry]:
     return entries
 
 
-class NonSurvivorStore:
+class YamlStore:
     def __init__(self, directory: Path):
         self.directory = Path(directory)
         self.entries: list[StoreEntry] = []
@@ -112,7 +112,6 @@ class NonSurvivorStore:
             domain = self.entries[i].domain.replace("_", " ")
             if domain in query.lower() or domain.replace(" ", "") in tokenize(query):
                 score += 0.15
-            # Prefer lexical overlap with the entry id tokens as well.
             if tokenize(self.entries[i].id) & q:
                 score += 0.05
             scored.append((i, score))

@@ -8,9 +8,17 @@ import os
 import urllib.error
 import urllib.request
 
+from absencecritic.prompts import (
+    CRITIC_SYSTEM,
+    DRAFT_SYSTEM,
+    REVISE_SYSTEM,
+    critic_user_message,
+    revise_user_message,
+)
 
-class OpenAICompatibleProvider:
-    """Chat Completions provider. Used only when a key is present."""
+
+class OpenAICompat:
+    """Chat Completions transport for GeneratorPort and CriticPort."""
 
     def __init__(
         self,
@@ -30,17 +38,37 @@ class OpenAICompatibleProvider:
                 "OPENAI_API_KEY is not set. Tests and eval default to --provider fixture."
             )
 
-    def complete(self, *, system: str, user: str, stage: str, query: str) -> str:
-        del query
-        payload = {
+    def generate(self, *, query: str) -> str:
+        return self._chat(DRAFT_SYSTEM, query, temperature=0.4, json_object=False)
+
+    def critique(self, *, query: str, draft: str, store_hits: str) -> str:
+        return self._chat(
+            CRITIC_SYSTEM,
+            critic_user_message(query, draft, store_hits),
+            temperature=0.2,
+            json_object=True,
+        )
+
+    def revise(self, *, query: str, draft: str, critique_json: str) -> str:
+        return self._chat(
+            REVISE_SYSTEM,
+            revise_user_message(query, draft, critique_json),
+            temperature=0.4,
+            json_object=False,
+        )
+
+    def _chat(
+        self, system: str, user: str, *, temperature: float, json_object: bool
+    ) -> str:
+        payload: dict = {
             "model": self.model,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            "temperature": 0.2 if stage == "critique" else 0.4,
+            "temperature": temperature,
         }
-        if stage == "critique":
+        if json_object:
             payload["response_format"] = {"type": "json_object"}
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(

@@ -4,7 +4,7 @@
 import pytest
 from pydantic import ValidationError
 
-from absencecritic.schemas import Critique, StoreEntry
+from absencecritic.domain.models import Critique, StoreEntry
 
 
 def test_critique_accepts_valid_payload():

@@ -25,10 +25,10 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from absencecritic.pipeline import run  # noqa: E402
-from absencecritic.providers.fixture import FixtureProvider  # noqa: E402
-from absencecritic.providers.openai_compat import OpenAICompatibleProvider  # noqa: E402
-from absencecritic.store import NonSurvivorStore  # noqa: E402
+from absencecritic.adapters.llm.fixture import FixtureLLM  # noqa: E402
+from absencecritic.adapters.llm.openai_compat import OpenAICompat  # noqa: E402
+from absencecritic.adapters.store.yaml_store import YamlStore  # noqa: E402
+from absencecritic.application.loop import run  # noqa: E402
 
 MISSING_RE = re.compile(
     r"surviv|missing|unpublished|base rate|file drawer|unknown|caveat|"
@@ -80,11 +80,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     provider = (
-        FixtureProvider(ROOT / "eval" / "fixtures" / "responses.yaml")
+        FixtureLLM(ROOT / "eval" / "fixtures" / "responses.yaml")
         if args.provider == "fixture"
-        else OpenAICompatibleProvider()
+        else OpenAICompat()
     )
-    store = NonSurvivorStore(ROOT / "data" / "non_survivors")
+    store = YamlStore(ROOT / "data" / "non_survivors")
     rows = []
     for item in load_queries(args.queries):
         q = item["query"]

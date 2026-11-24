@@ -1,17 +1,17 @@
 # Copyright 2026 Guzino (https://github.com/guzino)
 # SPDX-License-Identifier: Apache-2.0
 
+from absencecritic import run
+from absencecritic.adapters.llm.fixture import FixtureLLM
+from absencecritic.adapters.store.yaml_store import YamlStore
 from absencecritic.paths import default_fixture_path, default_store_dir
-from absencecritic.pipeline import run
-from absencecritic.providers.fixture import FixtureProvider
-from absencecritic.store import NonSurvivorStore
 
 
 def _run(query: str, *, shield: bool = True):
     return run(
         query,
-        provider=FixtureProvider(default_fixture_path()),
-        store=NonSurvivorStore(default_store_dir()),
+        provider=FixtureLLM(default_fixture_path()),
+        store=YamlStore(default_store_dir()),
         shield=shield,
     )
 
