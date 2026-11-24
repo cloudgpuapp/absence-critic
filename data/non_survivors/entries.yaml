@@ -40,6 +40,7 @@
   non_survivor_evidence: Conditioning on famous outcomes hides the base rate of dropouts who do not found valuable firms. A Kauffman Foundation survey of U.S. technology and engineering founders found most held at least a bachelor's degree. Visible holes are fame, not a causal recipe.
   confidence: 0.7
   provenance: "Vivek Wadhwa, Richard Freeman, Ben Rissing, Education and Tech Entrepreneurship, Ewing Marion Kauffman Foundation, 2008"
+  source_url: https://doi.org/10.2139/ssrn.1127248
 
 - id: ioannidis-2005
   domain: scientific_literature
@@ -128,6 +129,7 @@
   non_survivor_evidence: "Polanyi's tacit-knowledge thesis: much skilled practice is not fully articulable. Models trained on text miss the unwritten remainder."
   confidence: 0.7
   provenance: "Michael Polanyi, The Tacit Dimension, 1966"
+  source_url: https://press.uchicago.edu/ucp/books/book/chicago/T/bo6035368.html
 
 - id: abandoned-experiments
   domain: everyday_reasoning
