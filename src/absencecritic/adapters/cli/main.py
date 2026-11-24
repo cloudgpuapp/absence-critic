@@ -11,6 +11,7 @@ from pathlib import Path
 
 from absencecritic.adapters.llm.fixture import FixtureLLM
 from absencecritic.adapters.llm.openai_compat import OpenAICompat
+from absencecritic.adapters.store.catalog import ingest_catalog
 from absencecritic.adapters.store.ingest import ingest_yaml
 from absencecritic.adapters.store.yaml_store import YamlStore
 from absencecritic.application.loop import run
@@ -37,7 +38,12 @@ def _ingest_cmd(argv: list[str]) -> int:
         prog="absencecritic ingest",
         description="Validate and append curated Non-Survivor Store YAML.",
     )
-    parser.add_argument("file", type=Path, help="YAML file of StoreEntry records")
+    parser.add_argument("file", type=Path, help="YAML/JSONL of StoreEntry records or a catalog")
+    parser.add_argument(
+        "--catalog",
+        action="store_true",
+        help="Treat FILE as a frozen citable catalog (requires source_url)",
+    )
     parser.add_argument(
         "--store",
         type=Path,
@@ -45,7 +51,11 @@ def _ingest_cmd(argv: list[str]) -> int:
         help="Directory of Non-Survivor Store YAML/JSONL files",
     )
     args = parser.parse_args(argv)
-    ids = ingest_yaml(args.store, args.file)
+    ids = (
+        ingest_catalog(args.store, args.file)
+        if args.catalog
+        else ingest_yaml(args.store, args.file)
+    )
     for entry_id in ids:
         print(entry_id)
     return 0
