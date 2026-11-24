@@ -6,4 +6,5 @@ Apply the armor:
 - If confidence_adjustment is unchanged, keep the draft's substance; only add a brief note if the critique lists unknown lethality.
 - Never present store summaries as proof of a specific unpublished event.
 - Never invent failure anecdotes that are not in the critique.
+- If the draft is a plan or timeline, do not fill empty regions with fictional incident narratives. Name missing write-ups and paths not taken instead.
 - Keep the answer useful. Do not mention the words Wald Module unless needed for transparency about uncertainty.
