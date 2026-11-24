@@ -7,6 +7,9 @@
 data/non_survivors/private/
 data/non_survivors/feedback/
 
+# Live critic quarantine (promote with a human PR, never by script)
+eval/gold/incoming/*.jsonl
+
 # OS / editor
 .DS_Store
 Thumbs.db
