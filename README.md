@@ -91,7 +91,7 @@ absencecritic --provider fixture --critic local "What works for launching a star
 absencecritic --judge --draft-file draft.txt --json "What works for launching a startup?"
 ```
 
-Live OpenAI-compatible calls (OpenAI, OpenRouter, or a local server):
+Live OpenAI-compatible calls (OpenAI, OpenRouter, xAI, or a local server):
 
 ```bash
 # Windows PowerShell
@@ -104,6 +104,12 @@ absencecritic --provider openai "What works for launching a startup?"
 $env:OPENAI_API_KEY = "..."
 $env:OPENAI_BASE_URL = "https://openrouter.ai/api/v1"
 $env:ABSENCECRITIC_MODEL = "openai/gpt-4o-mini"
+absencecritic --provider openai "What works for launching a startup?"
+
+# xAI (model names change; see https://docs.x.ai for current ones)
+$env:OPENAI_API_KEY = "..."                          # your xAI API key
+$env:OPENAI_BASE_URL = "https://api.x.ai/v1"
+$env:ABSENCECRITIC_MODEL = "your-grok-model"
 absencecritic --provider openai "What works for launching a startup?"
 
 # Local OpenAI-compatible server (llama.cpp, vLLM, ...)

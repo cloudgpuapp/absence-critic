@@ -210,15 +210,22 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Exit 1 if committed gold files are stale; do not write",
     )
+    parser.add_argument(
+        "--overlay",
+        type=Path,
+        help=f"Overlay YAML to apply instead of {OVERLAY_PATH.relative_to(ROOT).as_posix()}",
+    )
     args = parser.parse_args(argv)
+    if args.overlay is not None and not args.overlay.is_file():
+        parser.error(f"overlay not found: {args.overlay}")
     if args.check:
-        stale = check_gold()
+        stale = check_gold(overlay_path=args.overlay)
         if stale:
             print("stale: " + ", ".join(stale))
             return 1
         print("gold files match export")
         return 0
-    path = write_gold(args.out)
+    path = write_gold(args.out, overlay_path=args.overlay)
     print(path.as_posix())
     return 0
 
