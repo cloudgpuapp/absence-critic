@@ -29,6 +29,7 @@ from absencecritic.adapters.llm.fixture import FixtureLLM  # noqa: E402
 from absencecritic.adapters.llm.openai_compat import OpenAICompat  # noqa: E402
 from absencecritic.adapters.store.yaml_store import YamlStore  # noqa: E402
 from absencecritic.application.loop import run  # noqa: E402
+from absencecritic.envfile import load_repo_env  # noqa: E402
 
 MISSING_RE = re.compile(
     r"surviv|missing|unpublished|base rate|file drawer|unknown|caveat|"
@@ -75,15 +76,19 @@ def score_case(item: dict, shielded, baseline) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="AbsenceCritic Phase 0 eval")
-    parser.add_argument("--provider", choices=("fixture", "openai"), default="fixture")
+    parser.add_argument(
+        "--provider", choices=("fixture", "openai", "ollama"), default="fixture"
+    )
     parser.add_argument("--queries", type=Path, default=ROOT / "eval" / "queries.yaml")
     args = parser.parse_args(argv)
+    load_repo_env()
 
-    provider = (
-        FixtureLLM(ROOT / "eval" / "fixtures" / "responses.yaml")
-        if args.provider == "fixture"
-        else OpenAICompat()
-    )
+    if args.provider == "fixture":
+        provider = FixtureLLM(ROOT / "eval" / "fixtures" / "responses.yaml")
+    elif args.provider == "ollama":
+        provider = OpenAICompat.ollama()
+    else:
+        provider = OpenAICompat()
     store = YamlStore(ROOT / "data" / "non_survivors")
     rows = []
     for item in load_queries(args.queries):

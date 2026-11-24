@@ -13,6 +13,7 @@ from absencecritic.adapters.llm.fixture import FixtureLLM
 from absencecritic.adapters.llm.openai_compat import OpenAICompat
 from absencecritic.adapters.store.yaml_store import YamlStore
 from absencecritic.application.loop import run
+from absencecritic.envfile import load_repo_env
 from absencecritic.paths import default_fixture_path, default_store_dir
 
 
@@ -21,16 +22,25 @@ def _llm(name: str):
         return FixtureLLM(default_fixture_path())
     if name == "openai":
         return OpenAICompat()
+    if name == "ollama":
+        return OpenAICompat.ollama()
     raise ValueError(f"Unknown provider: {name}")
 
 
 def _default_provider_name() -> str:
+    named = os.environ.get("ABSENCECRITIC_PROVIDER")
+    if named in {"fixture", "openai", "ollama"}:
+        return named
+    base = (os.environ.get("OPENAI_BASE_URL") or "").lower()
+    if "11434" in base:
+        return "ollama"
     if os.environ.get("OPENAI_API_KEY"):
         return "openai"
     return "fixture"
 
 
 def main(argv: list[str] | None = None) -> int:
+    load_repo_env()
     parser = argparse.ArgumentParser(
         prog="absencecritic",
         description="Run the AbsenceCritic Wald loop: draft → critic → revise.",
@@ -54,9 +64,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--provider",
-        choices=("fixture", "openai"),
+        choices=("fixture", "openai", "ollama"),
         default=_default_provider_name(),
-        help="LLM backend (default: fixture unless OPENAI_API_KEY is set)",
+        help="LLM backend (default: fixture; ollama if .env from setup)",
     )
     parser.add_argument(
         "--store",

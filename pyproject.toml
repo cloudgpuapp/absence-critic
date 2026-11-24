@@ -27,6 +27,7 @@ dev = [
 
 [project.scripts]
 absencecritic = "absencecritic.cli:main"
+absencecritic-setup = "absencecritic.adapters.cli.setup_ollama:main"
 
 [project.urls]
 Homepage = "https://github.com/guzino/absence-critic"
