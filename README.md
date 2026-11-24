@@ -131,7 +131,7 @@ python -m pytest
 
 Critic fine-tune stays off CI: [`scripts/critic_train.md`](scripts/critic_train.md) (`python scripts/train_critic.py --dry-run`). Serve the result through `--critic local`. Do not train the generator on critique JSON.
 
-Held-out survivorship items (disjoint ids, frozen labels, not critic JSON): [`eval/benchmark/`](eval/benchmark/README.md).
+Held-out survivorship items (disjoint ids, frozen labels, not critic JSON): [`eval/benchmark/`](eval/benchmark/README.md). Preference pairs (shielded vs unshielded, store bodies stripped): `python eval/export_pairs.py --provider fixture --out eval/pairs/out.jsonl`. Chosen is not a truth label.
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs pytest and fixture eval on `main` and pull requests. It never calls a live provider.
 
