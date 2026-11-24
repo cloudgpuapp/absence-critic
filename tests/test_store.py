@@ -238,6 +238,17 @@ def test_seed_cited_entries_do_not_hedge_as_author_prior():
             assert "author prior" not in e.provenance.lower(), e.id
 
 
+def test_cited_seed_entries_link_their_source():
+    store = YamlStore(default_store_dir())
+    cited = [e for e in store.entries if e.evidence.value == "cited"]
+    unlinked = sorted(e.id for e in cited if not e.source_url)
+    assert len(unlinked) <= 2, unlinked
+    for e in store.entries:
+        if e.source_url:
+            assert e.source_url.startswith("https://"), e.id
+            assert e.evidence.value == "cited", e.id
+
+
 def test_format_hits_shows_evidence():
     store = YamlStore(default_store_dir())
     entry = next(e for e in store.entries if e.evidence.value == "author_prior")
