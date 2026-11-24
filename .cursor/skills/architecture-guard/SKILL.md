@@ -17,6 +17,7 @@ Read [AGENTS.md](../../../AGENTS.md) (canonical for every tool). Then inspect th
 6. New code sits in the matching layer (see AGENTS.md table).
 7. SPDX header present on new source files.
 8. SOLID mapping in AGENTS.md: no collapsed stages, no loop edit for a new vendor, ports stay segregated.
+9. Tracked text is UTF-8 with no U+FFFD, BEL, C0/C1 controls, or UTF-8 BOM (`tests/test_text_encoding.py`).
 
 ## Report
 
