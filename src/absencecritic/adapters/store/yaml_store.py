@@ -59,8 +59,77 @@ def _write_entries(path: Path, entries: list[StoreEntry]) -> None:
     path.write_text(_INGEST_HEADER + "\n" + body, encoding="utf-8")
 
 
+_METHOD_TOKENS = frozenset(
+    {
+        "abraham",
+        "armor",
+        "bias",
+        "critic",
+        "insight",
+        "module",
+        "quote",
+        "shield",
+        "survivor",
+        "survivors",
+        "survivorship",
+        "wald",
+    }
+)
+_ADVICE_CUES = frozenset(
+    {
+        "advice",
+        "always",
+        "best",
+        "founder",
+        "founders",
+        "guaranteed",
+        "launch",
+        "launched",
+        "launching",
+        "should",
+        "success",
+        "successful",
+        "tips",
+        "treatment",
+        "tricks",
+        "work",
+        "works",
+    }
+)
+_MIN_OVERLAP = 2
+
+
 def tokenize(text: str) -> set[str]:
     return {t for t in _TOKEN.findall(text.lower()) if t not in _STOP and len(t) > 1}
+
+
+def _related(left: str, right: str) -> bool:
+    if left == right:
+        return True
+    if min(len(left), len(right)) < 5:
+        return False
+    return left.startswith(right) or right.startswith(left)
+
+
+def _domain_hit(domain: str, content: set[str]) -> bool:
+    domain_tokens = tokenize(domain.replace("_", " "))
+    return any(
+        _related(dt, ct) for dt in domain_tokens for ct in content
+    )
+
+
+def _query_content(query: str, draft: str) -> set[str]:
+    q = tokenize(query)
+    meta = bool(q & {"wald", "abraham", "quote"}) and not (q & _ADVICE_CUES)
+    if meta:
+        return q - _METHOD_TOKENS
+    combined = tokenize(f"{query} {draft}")
+    content = combined - _METHOD_TOKENS
+    if content:
+        return content
+    if tokenize(draft) & _ADVICE_CUES:
+        return combined
+    return set()
 
 
 def load_entries(path: Path) -> list[StoreEntry]:
@@ -125,19 +194,24 @@ class YamlStore:
         ]
 
     def retrieve(self, query: str, draft: str = "", k: int = 5) -> list[tuple[StoreEntry, float]]:
-        q = tokenize(f"{query} {draft}")
-        if not q:
+        content = _query_content(query, draft)
+        if not content:
             return []
         scored: list[tuple[int, float]] = []
         for i, bag in enumerate(self._bags):
-            overlap = q & bag
-            if not overlap:
+            entry = self.entries[i]
+            overlap = content & bag
+            id_tokens = tokenize(entry.id) - _METHOD_TOKENS
+            id_hit = bool(id_tokens & content)
+            domain_hit = _domain_hit(entry.domain, content)
+            if not overlap and not domain_hit and not id_hit:
                 continue
-            score = len(overlap) / len(q)
-            domain = self.entries[i].domain.replace("_", " ")
-            if domain in query.lower() or domain.replace(" ", "") in tokenize(query):
+            if len(overlap) < _MIN_OVERLAP and not domain_hit and not id_hit:
+                continue
+            score = len(overlap) / len(content)
+            if domain_hit:
                 score += 0.15
-            if tokenize(self.entries[i].id) & q:
+            if id_hit:
                 score += 0.05
             scored.append((i, score))
         scored.sort(key=lambda item: item[1], reverse=True)
