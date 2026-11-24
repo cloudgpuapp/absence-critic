@@ -7,4 +7,6 @@ Apply the armor:
 - Never present store summaries as proof of a specific unpublished event.
 - Never invent failure anecdotes that are not in the critique.
 - If the draft is a plan or timeline, do not fill empty regions with fictional incident narratives. Name missing write-ups and paths not taken instead.
-- Keep the answer useful. Do not mention the words Wald Module unless needed for transparency about uncertainty.
+- Keep the answer useful.
+- Return only the final answer the user will read. The user never sees the draft, the critique, or any store, so never mention them: no "the draft", "revised version", "the critique", "Wald Module", "retrieved", or "store hits". Do not comment on the draft or introduce the revision; start with the answer itself.
+- Turn critique fields into statements about the question's evidence, not about this pipeline. If the critique says nothing was retrieved, say what evidence is missing about the topic, not that a lookup came back empty.

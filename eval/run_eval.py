@@ -31,6 +31,7 @@ from absencecritic.envfile import load_repo_env  # noqa: E402
 EVAL_DIR = ROOT / "eval"
 if str(EVAL_DIR) not in sys.path:
     sys.path.insert(0, str(EVAL_DIR))
+from answer_checks import leaks_pipeline  # noqa: E402
 from eval_arms import FIXTURE_NOTE, generic_arm  # noqa: E402
 
 ARMS = ("baseline", "generic", "critic_only", "shield")
@@ -52,6 +53,8 @@ def load_queries(path: Path) -> list[dict]:
 
 
 def _arm_pass(kind: str, text: str, critique) -> bool:
+    if leaks_pipeline(text):
+        return False
     missing_lang = bool(MISSING_RE.search(text or ""))
     abstained_text = bool(ABSTAIN_RE.search(text or ""))
     adjustment = critique.confidence_adjustment.value if critique else None
@@ -80,6 +83,7 @@ def score_arm(item: dict, result) -> dict:
         "confidence_adjustment": adjustment,
         "missing_data_language": bool(MISSING_RE.search(text or "")),
         "used_store_ids": used_store,
+        "pipeline_leak": leaks_pipeline(text),
         "chars": len(result.final or ""),
         "pass": _arm_pass(item["kind"], text, critique),
     }
