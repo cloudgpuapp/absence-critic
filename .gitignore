@@ -3,6 +3,10 @@
 .env.*
 !.env.example
 
+# Local / org Non-Survivor Store (never commit)
+data/non_survivors/private/
+data/non_survivors/feedback/
+
 # OS / editor
 .DS_Store
 Thumbs.db

@@ -12,6 +12,7 @@ from pathlib import Path
 from absencecritic.adapters.llm.fixture import FixtureLLM
 from absencecritic.adapters.llm.openai_compat import OpenAICompat
 from absencecritic.adapters.store.catalog import ingest_catalog
+from absencecritic.adapters.store.feedback import accept_feedback, queue_feedback
 from absencecritic.adapters.store.ingest import ingest_yaml
 from absencecritic.adapters.store.yaml_store import YamlStore
 from absencecritic.application.loop import run
@@ -61,11 +62,47 @@ def _ingest_cmd(argv: list[str]) -> int:
     return 0
 
 
+def _feedback_cmd(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="absencecritic feedback",
+        description="Queue or accept user failure notes (pending until accepted).",
+    )
+    parser.add_argument(
+        "file",
+        nargs="?",
+        type=Path,
+        help="YAML of StoreEntry records to queue as pending",
+    )
+    parser.add_argument(
+        "--accept",
+        metavar="ID",
+        help="Mark a pending feedback id as accepted (then it can retrieve)",
+    )
+    parser.add_argument(
+        "--store",
+        type=Path,
+        default=default_store_dir(),
+        help="Directory of Non-Survivor Store YAML/JSONL files",
+    )
+    args = parser.parse_args(argv)
+    if args.accept:
+        accept_feedback(args.store, args.accept)
+        print(args.accept)
+        return 0
+    if args.file is None:
+        parser.error("provide a YAML file or --accept ID")
+    for entry_id in queue_feedback(args.store, args.file):
+        print(entry_id)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     load_repo_env()
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "ingest":
         return _ingest_cmd(argv[1:])
+    if argv and argv[0] == "feedback":
+        return _feedback_cmd(argv[1:])
     parser = argparse.ArgumentParser(
         prog="absencecritic",
         description="Run the AbsenceCritic Wald loop: draft → critic → revise.",
