@@ -16,7 +16,7 @@ from absencecritic.adapters.store.catalog import ingest_catalog
 from absencecritic.adapters.store.feedback import accept_feedback, queue_feedback
 from absencecritic.adapters.store.ingest import ingest_yaml
 from absencecritic.adapters.store.yaml_store import YamlStore
-from absencecritic.application.loop import run
+from absencecritic.application.loop import run, score
 from absencecritic.envfile import load_repo_env
 from absencecritic.paths import default_fixture_path, default_store_dir
 
@@ -118,6 +118,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("query", help="User question")
     parser.add_argument(
+        "--judge",
+        action="store_true",
+        help="Critique an existing draft; do not generate or revise",
+    )
+    parser.add_argument(
+        "--draft-file",
+        type=Path,
+        help="Draft text for --judge",
+    )
+    parser.add_argument(
         "--no-shield",
         action="store_true",
         help="Return the primary draft only (baseline)",
@@ -152,16 +162,31 @@ def main(argv: list[str] | None = None) -> int:
         help="Directory of Non-Survivor Store YAML/JSONL files",
     )
     args = parser.parse_args(argv)
+    if args.judge and args.no_shield:
+        parser.error("--judge cannot be combined with --no-shield")
+    if args.judge and args.draft_file is None:
+        parser.error("--judge requires --draft-file")
+    if args.draft_file is not None and not args.judge:
+        parser.error("--draft-file requires --judge")
 
     store = YamlStore(args.store)
     generator = _llm(args.provider)
-    result = run(
-        args.query,
-        generator=generator,
-        critic=_critic(args.critic, generator),
-        store=store,
-        shield=not args.no_shield,
-    )
+    critic = _critic(args.critic, generator)
+    if args.judge:
+        result = score(
+            args.query,
+            args.draft_file.read_text(encoding="utf-8"),
+            critic=critic,
+            store=store,
+        )
+    else:
+        result = run(
+            args.query,
+            generator=generator,
+            critic=critic,
+            store=store,
+            shield=not args.no_shield,
+        )
     if args.as_json:
         payload = {
             "query": result.query,
@@ -172,6 +197,10 @@ def main(argv: list[str] | None = None) -> int:
             "shielded": result.shielded,
         }
         print(json.dumps(payload, indent=2))
+        return 0
+    if args.judge:
+        if result.critique is not None:
+            print(json.dumps(result.critique.model_dump(mode="json"), indent=2))
         return 0
     print(result.final)
     if args.show_critique and result.critique is not None:

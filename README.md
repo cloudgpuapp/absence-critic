@@ -78,6 +78,7 @@ Private store files go in another directory (`--store` or `ABSENCECRITIC_STORE`)
 absencecritic --provider fixture "What is 2+2?"
 absencecritic --provider openai "What works for launching a startup?"
 absencecritic --provider fixture --critic local "What works for launching a startup?"
+absencecritic --judge --draft-file draft.txt --json "What works for launching a startup?"
 ```
 
 Live OpenAI-compatible calls (OpenAI, OpenRouter, or a local server):
@@ -95,7 +96,7 @@ Copy [`.env.example`](.env.example) for the variable names. Store path: `ABSENCE
 Library:
 
 ```python
-from absencecritic import run
+from absencecritic import run, score
 from absencecritic.adapters.llm.fixture import FixtureLLM
 from absencecritic.adapters.store.yaml_store import YamlStore
 from absencecritic.paths import default_fixture_path, default_store_dir
@@ -108,6 +109,14 @@ result = run(
 )
 print(result.final)
 print(result.critique)
+
+judged = score(
+    "What works for launching a startup?",
+    "Copy the last unicorn.",
+    critic=FixtureLLM(default_fixture_path()),
+    store=YamlStore(default_store_dir()),
+)
+print(judged.critique)
 ```
 
 ### Eval and tests

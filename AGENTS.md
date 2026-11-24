@@ -23,7 +23,7 @@ Ports-and-adapters around a linear Wald loop. Not LangGraph. Not a single mega-p
 | Origin docs | `docs/` | - | edits unless the user asked |
 | Working plans | `plans/` | - | do not copy into origin `docs/` |
 
-Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult`.
+Public API: `from absencecritic import run, score, Critique, StoreEntry, PipelineResult`.
 
 ## Where a change goes
 
