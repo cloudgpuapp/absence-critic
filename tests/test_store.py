@@ -29,6 +29,24 @@ def test_retrieve_hire_tenure_does_not_lead_with_who_pharmacovigilance():
     assert "who-pharmacovigilance-underreporting" not in ids[:1]
 
 
+def test_retrieve_does_not_pad_hire_draft_with_medical_notes():
+    store = YamlStore(default_store_dir())
+    query = (
+        "Who should I hire if I only interview people who stayed at the company five years?"
+    )
+    draft = (
+        "You should hire someone who has stayed at their previous companies "
+        "for five years or more."
+    )
+    hits = store.retrieve(query, draft, k=5)
+    ids = [entry.id for entry, _ in hits]
+    assert ids
+    assert ids[0] == "current-employee-tenure-filter"
+    assert "hopewell-trial-publication-bias" not in ids
+    assert "faers-underreporting" not in ids
+    assert "nutrition-publication-bias" not in ids
+
+
 def test_retrieve_ranks_startup_above_unrelated(tmp_path: Path):
     (tmp_path / "a.yaml").write_text(
         """
@@ -53,6 +71,35 @@ def test_retrieve_ranks_startup_above_unrelated(tmp_path: Path):
     hits = store.retrieve("What works for launching a startup?")
     assert hits
     assert hits[0][0].id == "startup-fail"
+
+
+def test_retrieve_drops_hits_far_below_the_top_score(tmp_path: Path):
+    (tmp_path / "a.yaml").write_text(
+        """
+- id: hire-stayers
+  domain: hiring
+  selection_process: interview only people who stayed five years
+  survivor_pattern: long tenure as a hire signal
+  non_survivor_evidence: leavers never enter the pool
+  confidence: 0.8
+  provenance: test
+- id: diet-pad
+  domain: medical
+  selection_process: published nutrition studies
+  survivor_pattern: diets that got papers
+  non_survivor_evidence: unpublished null diets
+  confidence: 0.5
+  provenance: test
+""",
+        encoding="utf-8",
+    )
+    store = YamlStore(tmp_path)
+    query = "Who should I hire if I only interview people who stayed five years?"
+    draft = "Hire the people who stayed."
+    hits = store.retrieve(query, draft, k=5)
+    ids = [entry.id for entry, _ in hits]
+    assert ids[0] == "hire-stayers"
+    assert "diet-pad" not in ids
 
 
 def test_retrieve_two_plus_two_is_empty():

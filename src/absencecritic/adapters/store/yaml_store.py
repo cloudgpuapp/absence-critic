@@ -107,6 +107,7 @@ _ADVICE_CUES = frozenset(
     }
 )
 _MIN_OVERLAP = 2
+_SCORE_RATIO = 0.5
 
 
 def tokenize(text: str) -> set[str]:
@@ -245,7 +246,11 @@ class YamlStore:
                 score += 0.05
             scored.append((i, score))
         scored.sort(key=lambda item: item[1], reverse=True)
-        return [(self.entries[i], score) for i, score in scored[:k]]
+        if not scored:
+            return []
+        floor = scored[0][1] * _SCORE_RATIO
+        kept = [(i, score) for i, score in scored if score >= floor]
+        return [(self.entries[i], score) for i, score in kept[:k]]
 
     def add(self, entry: StoreEntry) -> StoreEntry:
         """Append a validated entry to ingested.yaml. Retrieve-only StorePort is unchanged."""
