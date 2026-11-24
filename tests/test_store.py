@@ -46,6 +46,32 @@ def test_seeded_store_loads():
     assert len(store.entries) >= 20
     ids = {e.id for e in store.entries}
     assert "bls-establishment-survival" in ids
+    bls = next(e for e in store.entries if e.id == "bls-establishment-survival")
+    assert bls.collection.value == "seed"
+
+
+def test_add_stamps_ingested_at_and_roundtrips_collection(tmp_path: Path):
+    store = YamlStore(tmp_path)
+    store.add(
+        StoreEntry(
+            id="startup-cohort-note",
+            domain="startups",
+            selection_process="public advice is written by firms that lasted",
+            survivor_pattern="visible launch playbooks",
+            non_survivor_evidence="quiet closures are missing from blogs",
+            confidence=0.6,
+            provenance="Author prior, low confidence",
+            collection="catalog",
+            source_url="https://example.org/bed",
+        )
+    )
+    text = (tmp_path / "ingested.yaml").read_text(encoding="utf-8")
+    assert "schema_version: 1" in text
+    loaded = YamlStore(tmp_path).entries[0]
+    assert loaded.collection.value == "catalog"
+    assert loaded.source_url == "https://example.org/bed"
+    assert loaded.ingested_at
+    assert "T" in loaded.ingested_at
 
 
 def test_add_appends_ingested_yaml_and_ranks(tmp_path: Path):

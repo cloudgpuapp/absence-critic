@@ -6,6 +6,7 @@ from absencecritic.domain.models import (
     Critique,
     NonSurvivorHit,
     PipelineResult,
+    StoreCollection,
     StoreEntry,
 )
 
@@ -14,5 +15,6 @@ __all__ = [
     "Critique",
     "NonSurvivorHit",
     "PipelineResult",
+    "StoreCollection",
     "StoreEntry",
 ]

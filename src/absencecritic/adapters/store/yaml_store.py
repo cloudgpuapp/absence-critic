@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -16,6 +17,7 @@ _INGEST_HEADER = """\
 # Copyright 2026 Guzino (https://github.com/guzino)
 # SPDX-License-Identifier: Apache-2.0
 #
+# schema_version: 1
 # Curated Phase 1 ingest. Written by YamlStore.add; seed notes stay in
 # other YAML files in this directory.
 """
@@ -74,7 +76,10 @@ def load_entries(path: Path) -> list[StoreEntry]:
     if raw is None:
         return []
     if isinstance(raw, dict):
-        raw = raw.get("entries", [raw])
+        if "entries" in raw:
+            raw = raw["entries"]
+        else:
+            raw = [raw]
     if not isinstance(raw, list):
         raise ValueError(f"Expected a list of entries in {path}")
     entries = []
@@ -147,6 +152,11 @@ class YamlStore:
             raise ValueError("provenance is required")
         if any(existing.id == validated.id for existing in self.entries):
             raise ValueError(f"duplicate store id: {validated.id}")
+        if not validated.ingested_at:
+            stamped = (
+                datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+            )
+            validated = validated.model_copy(update={"ingested_at": stamped})
         path = self.directory / INGEST_FILENAME
         current = load_entries(path) if path.exists() else []
         current.append(validated)
