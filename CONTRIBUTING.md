@@ -15,7 +15,8 @@ AbsenceCritic is Apache-2.0. Origin and architecture: [Guzino](https://github.co
 4. Run `python -m pytest` and `python eval/run_eval.py --provider fixture` before a PR. GitHub Actions runs the same pair (fixture provider only; no API keys) on `main` and every pull request.
 5. Live eval uses `OPENAI_API_KEY` (copy [`.env.example`](.env.example) to `.env`). Example: `python eval/run_eval.py --provider openai`.
 6. SPDX header on new source files: `Copyright 2026 Guzino (https://github.com/guzino)` / `Apache-2.0`.
-7. Fill the PR template. Reviewers should block on architecture/SOLID and the Wald invariant, not on taste.
+7. New Non-Survivor notes: `absencecritic ingest path/to/entries.yaml` (or a YAML file under `data/non_survivors/`). Provenance is required.
+8. Fill the PR template. Reviewers should block on architecture/SOLID and the Wald invariant, not on taste.
 
 ## Pull requests
 
