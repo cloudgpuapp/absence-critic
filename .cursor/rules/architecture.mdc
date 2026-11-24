@@ -15,3 +15,5 @@ Linear Wald loop: generate → retrieve (critic only) → critique JSON → revi
 The generator must never receive Non-Survivor Store hits. Critic output is validated `Critique` JSON. New features land in the matching layer or they do not land.
 
 Do not put business logic in the CLI. Do not collapse draft+critic into one prompt. Same HTTP class may implement both LLM ports; calls stay separate (`generate` / `critique` / `revise`).
+
+Policy source of truth is AGENTS.md, not this file. Do not maintain a Claude-only or Copilot-only copy of these rules.

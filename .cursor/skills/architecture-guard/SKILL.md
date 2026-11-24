@@ -5,7 +5,7 @@ description: Check AbsenceCritic diffs for ports-and-adapters import direction a
 
 # Architecture guard
 
-Read [AGENTS.md](../../../AGENTS.md). Then inspect the diff (or named files).
+Read [AGENTS.md](../../../AGENTS.md) (canonical for every tool). Then inspect the diff (or named files).
 
 ## Checks
 

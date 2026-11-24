@@ -38,7 +38,7 @@ Core claim: a model trained only on the planes that returned will correctly lear
 
 Python package plus CLI on a ports-and-adapters layout (`domain` / `application` / `adapters` / `prompts`). Loop: primary draft (no store) → keyword retrieval from the Non-Survivor Store → Wald critic JSON → primary revision. Tests and eval use recorded fixtures so they run without an API key.
 
-Agent conventions: [`AGENTS.md`](AGENTS.md). Cursor rules, skills, and commands live under [`.cursor/`](.cursor/).
+Agent conventions (tool-agnostic): [`AGENTS.md`](AGENTS.md). Claude Code: [`CLAUDE.md`](CLAUDE.md). Humans: [`CONTRIBUTING.md`](CONTRIBUTING.md). Cursor loaders stay under [`.cursor/`](.cursor/); skill *content* is generic and is not duplicated per vendor.
 
 ### Install
 

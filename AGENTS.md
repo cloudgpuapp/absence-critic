@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # AbsenceCritic agent guide
 
+Tool-agnostic rules for humans and coding agents (Claude Code, Cursor, Copilot, or anything else). Policy lives here. Editor-specific loaders are thin pointers; do not fork these rules per tool.
+
 Ports-and-adapters around a linear Wald loop. Not LangGraph. Not a single mega-prompt.
 
 **Invariant:** the generator never reads the Non-Survivor Store. Only the critic does.
@@ -41,11 +43,25 @@ Public API: `from absencecritic import run, Critique, StoreEntry, PipelineResult
 - Business logic in the CLI
 - Rewriting `docs/` origin documents unless asked
 
-## Cursor surface
+## Workflows
 
-- Rules: `.cursor/rules/`
-- Skills: `.cursor/skills/` (`architecture-guard`, `add-store-entry`, `add-llm-adapter`, `run-phase-eval`)
-- Commands: `/check-architecture`, `/new-store-entry`, `/new-provider`, `/run-eval`
+Shared skill files (Agent Skills format; content is generic):
+
+| Workflow | File |
+|----------|------|
+| Check layer imports and stage isolation | `.cursor/skills/architecture-guard/SKILL.md` |
+| Add a Non-Survivor Store entry | `.cursor/skills/add-store-entry/SKILL.md` |
+| Add an LLM adapter | `.cursor/skills/add-llm-adapter/SKILL.md` |
+| Run pytest and fixture eval | `.cursor/skills/run-phase-eval/SKILL.md` |
+
+The `.cursor/skills/` path is where Cursor auto-loads skills. Claude Code should follow the same files via `CLAUDE.md`. Do not copy the bodies into a second tree.
+
+## Tool adapters (pointers only)
+
+- Claude Code: [`CLAUDE.md`](CLAUDE.md)
+- GitHub Copilot: [`.github/copilot-instructions.md`](.github/copilot-instructions.md)
+- Cursor: `.cursor/rules/`, `.cursor/skills/`, `.cursor/commands/`
+- Humans: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 SPDX on every new source file:
 
