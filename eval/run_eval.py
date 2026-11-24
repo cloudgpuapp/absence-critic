@@ -28,6 +28,13 @@ from absencecritic.adapters.store.yaml_store import YamlStore  # noqa: E402
 from absencecritic.application.loop import run  # noqa: E402
 from absencecritic.envfile import load_repo_env  # noqa: E402
 
+EVAL_DIR = ROOT / "eval"
+if str(EVAL_DIR) not in sys.path:
+    sys.path.insert(0, str(EVAL_DIR))
+from eval_arms import FIXTURE_NOTE, generic_arm  # noqa: E402
+
+ARMS = ("baseline", "generic", "critic_only", "shield")
+
 MISSING_RE = re.compile(
     r"surviv|missing|unpublished|base[- ]rate|file drawer|unknown|caveat|"
     r"did not return|non-survivor|selection|under-report|failure rate|"
@@ -77,9 +84,10 @@ def score_arm(item: dict, result) -> dict:
     }
 
 
-def score_case(item: dict, *, baseline, critic_only, shield) -> dict:
+def score_case(item: dict, *, baseline, generic, critic_only, shield) -> dict:
     arms = {
         "baseline": score_arm(item, baseline),
+        "generic": score_arm(item, generic),
         "critic_only": score_arm(item, critic_only),
         "shield": score_arm(item, shield),
     }
@@ -139,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
                     baseline = run(
                         q, provider=provider, store=store, shield=False, draft=draft
                     )
+                    generic = generic_arm(q, draft, generator=provider)
                     critic_only = run(
                         q,
                         provider=provider,
@@ -153,6 +162,7 @@ def main(argv: list[str] | None = None) -> int:
                     row = score_case(
                         item,
                         baseline=baseline,
+                        generic=generic,
                         critic_only=critic_only,
                         shield=shielded,
                     )
@@ -185,8 +195,11 @@ def main(argv: list[str] | None = None) -> int:
         "total": len(rows),
         "samples": args.samples,
         "arms": _arm_summary(samples),
+        "arm_deltas_meaningful": args.provider != "fixture",
         "cases": rows,
     }
+    if args.provider == "fixture":
+        payload["note"] = FIXTURE_NOTE
     if args.samples > 1:
         payload["sample_cases"] = samples
     print(json.dumps(payload, indent=2))
@@ -194,9 +207,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _arm_summary(samples: list[list[dict]]) -> dict:
-    names = ("baseline", "critic_only", "shield")
     out: dict[str, dict] = {}
-    for name in names:
+    for name in ARMS:
         rates = []
         for rows in samples:
             scored = [
